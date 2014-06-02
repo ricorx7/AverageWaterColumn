@@ -35,6 +35,7 @@
  * -----------------------------------------------------------------
  * 05/30/2014      RC          0.0.1      Initial coding
  * 06/02/2014      RC          0.0.2      Added Running average.
+ * 06/02/2014      RC          0.0.3      Added new line at the end of the string output.
  * 
  * 
  */
@@ -667,6 +668,7 @@ namespace RTI
             sb.Append(runningAvg.MinBin + ",");                // Minimum Bin
             sb.Append(runningAvg.MaxBin + ",");                // Maximum Bin
             sb.Append(_runningAvgBuffer.Count);                // Number of running average data accumulated
+            sb.Append("\n");
 
             _outputBuffer.Data = runningAvg;
             _outputBuffer.DataStr = sb.ToString();

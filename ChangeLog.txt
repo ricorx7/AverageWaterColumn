@@ -1,5 +1,8 @@
 ﻿AverageWaterColumn Changelog
 
+AverageWaterColumn-0.0.3
+ - Added new line at the end of the string output.
+
 AverageWaterColumn-0.0.2
  - Made it a running average
 
