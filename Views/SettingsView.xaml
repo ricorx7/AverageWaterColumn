@@ -1,0 +1,107 @@
+﻿<UserControl x:Class="RTI.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+			 xmlns:extToolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
+             mc:Ignorable="d" 
+			 Background="{StaticResource PulseBackgroundColor}"
+			 Foreground="{StaticResource PulseFontColor}">
+    <Grid>  
+       <Grid.RowDefinitions>
+       		<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" /> 
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />  
+			<RowDefinition Height="Auto" />   
+	   </Grid.RowDefinitions>
+	   
+	   
+	   <!--Minimum Bin-->
+	   <Border Grid.Row="0" Background="{StaticResource PulseBackBorder1Color}" Margin="5" >
+	   		<Grid>
+	   			<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" /> 
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />   
+				</Grid.RowDefinitions>	
+				
+				<TextBlock Grid.Row="0" Text="Minimum Bin" Margin="5" FontSize="16" />
+				<extToolkit:IntegerUpDown Grid.Row="1" Value="{Binding MinBin}" Margin="5" Minimum="0" Maximum="200" MinWidth="50" HorizontalAlignment="Left" />			
+			</Grid>
+	   </Border>
+	   
+	   <!--Maximum Bin-->
+	   <Border Grid.Row="1" Background="{StaticResource PulseBackBorder1Color}" Margin="5" >
+	   		<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" /> 
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />   
+				</Grid.RowDefinitions>	
+				
+	   			<TextBlock Grid.Row="0" Text="Maximum Bin" Margin="5" FontSize="16" />
+				
+				<StackPanel Grid.Row="1" Orientation="Horizontal">
+	   				<CheckBox IsChecked="{Binding IsUseFixedMaxBin}" Content="Use Fixed Max Bin" Foreground="{StaticResource PulseFontColor}" Margin="5" />
+					<extToolkit:IntegerUpDown Value="{Binding MaxBin}" Margin="5" Minimum="0" Maximum="200" MinWidth="50" HorizontalAlignment="Left" />	
+				</StackPanel>		
+	   		</Grid>
+	   </Border>
+
+		<!--Output Speed-->
+		<Border Grid.Row="2" Background="{StaticResource PulseBackBorder1Color}" Margin="5" >
+	   		<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+				
+				<TextBlock Grid.Row="0" Text="Output Speed (ms)" Margin="5" FontSize="16" />
+				
+				<StackPanel Grid.Row="1" Orientation="Horizontal">
+					<extToolkit:IntegerUpDown Value="{Binding OutputSpeed}" Margin="5" Minimum="250" Increment="250" MinWidth="75" HorizontalAlignment="Left" />	
+					<TextBlock Text="ms" VerticalAlignment="Center" />
+				</StackPanel>
+				
+			</Grid>
+		</Border>
+		
+		<!--Max Running Average Count-->
+		<Border Grid.Row="3" Background="{StaticResource PulseBackBorder1Color}" Margin="5" >
+	   		<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+				
+				<TextBlock Grid.Row="0" Text="Maximum Running Average Count" Margin="5" FontSize="16" />
+				
+				<StackPanel Grid.Row="1" Orientation="Horizontal">
+					<extToolkit:IntegerUpDown Value="{Binding MaxRunningAvgCount}" Margin="5" Minimum="1" Increment="1" MinWidth="75" HorizontalAlignment="Left" />	
+				</StackPanel>
+				
+			</Grid>
+		</Border>
+
+	   <!--Adcp Commands-->
+	   <Border Grid.Row="4" Background="{StaticResource PulseBackBorder1Color}" Margin="5" >
+	   		<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+				
+				<TextBlock Grid.Row="0" Text="Additional ADCP Commands" Margin="5" FontSize="16" />
+				
+				<ScrollViewer Grid.Row="1" Height="100" Margin="5">
+					<TextBox Text="{Binding Path=AdcpCommands}" TextWrapping="Wrap" AcceptsReturn="True" BorderThickness="0" Background="{StaticResource PulseBackgroundColor}" Margin="5" Foreground="{StaticResource PulseFontColor}"/>
+				</ScrollViewer>
+					
+	   		</Grid>
+		</Border>
+	   
+    </Grid>
+</UserControl>

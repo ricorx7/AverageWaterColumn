@@ -1,0 +1,8 @@
+﻿AverageWaterColumn Changelog
+
+AverageWaterColumn-0.0.2
+ - Made it a running average
+
+AverageWaterColumn-0.0.1
+ - Initial coding
+

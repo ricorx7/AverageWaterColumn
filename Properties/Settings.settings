@@ -1,0 +1,36 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="AverageWaterColumn.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="AdcpCommPort" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="AdcpBaud" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">921600</Value>
+    </Setting>
+    <Setting Name="OutputCommPort" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="OutputBaud" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">921600</Value>
+    </Setting>
+    <Setting Name="MinBin" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="MaxBin" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="UseFixedMaxBin" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="AdcpCommands" Type="System.String" Scope="User">
+      <Value Profile="(Default)">START</Value>
+    </Setting>
+    <Setting Name="OutputSpeed" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">500</Value>
+    </Setting>
+    <Setting Name="MaxRunningAvgCount" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">30</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
