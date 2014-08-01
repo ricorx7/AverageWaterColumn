@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 			 xmlns:cal="http://www.caliburnproject.org"	
+			 xmlns:helix="clr-namespace:HelixToolkit.Wpf;assembly=HelixToolkit.Wpf"
+			 xmlns:rti="clr-namespace:RTI"
              mc:Ignorable="d" 
              Background="{StaticResource PulseBackgroundColor}">
 	        <Grid>
@@ -119,10 +121,111 @@
 	                </Grid>
 	            </Border>
 		
-		<!--Settings ViewModel-->
-		<Expander Header="Settings"  Grid.Row="2" Grid.ColumnSpan="2" Foreground="{StaticResource PulseFontColor}" >
-			<ContentControl cal:View.Model="{Binding SettingsVM}"  />
-		</Expander>
+				<!--Profile-->
+				<Grid Grid.Row="2" Grid.Column="1" Background="Black">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="Auto" />
+					</Grid.ColumnDefinitions>
+					
+					<!--ContentControl cal:View.Model="{Binding VelPlot}" /-->
+					<Viewbox Grid.Row="0" Grid.Column="0" Stretch="Fill" MaxHeight="{Binding PlotSize}">
+						<helix:HelixViewport3D x:Name="viewportSelectedEnsemble" ZoomExtentsWhenLoaded="False" ShowCoordinateSystem="False" ShowCameraInfo="False" ShowCameraTarget="False" ShowViewCube="True" CameraMode="Inspect" Orthographic="True" Width="400" Height="400" > 
+				      		<helix:HelixViewport3D.Camera>
+								<PerspectiveCamera UpDirection="0, 1, 0" Position="-0.381, -10.889, 29.000" LookDirection="0,0,-19.000"  />	
+							</helix:HelixViewport3D.Camera>
+							<helix:DefaultLights />
+							<rti:BinPlot3D Content="{Binding VelPlot.Content}">
+								<rti:BinPlot3D.Transform>
+									<Transform3DGroup>
+										<RotateTransform3D>
+											<RotateTransform3D.Rotation>
+												<AxisAngleRotation3D Axis="0,1,0" Angle="90"/>
+											</RotateTransform3D.Rotation>
+										</RotateTransform3D>
+									</Transform3DGroup>
+								</rti:BinPlot3D.Transform>
+							</rti:BinPlot3D>
+			        	</helix:HelixViewport3D>
+					</Viewbox>
+					
+					<!--Plot Legend-->
+					<Viewbox Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" Margin="5" >
+						<StackPanel>						
+							<!--Contour Legend Image-->
+							<Image Grid.Column="1" Source="{Binding Legend.LegendImage}" HorizontalAlignment="Right" />
+							
+							<!--Contour Plot Legend Label-->
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="*" />
+								</Grid.ColumnDefinitions>
+
+								<!--Min value pushed to the left with lines on the scale image-->
+								<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Legend.MinVelocityScale}" HorizontalAlignment="Left" Foreground="{StaticResource PulseFontColor}" VerticalAlignment="Center"/>
+								
+								<!--Max value pushed to the right with lines on the scale image-->
+								<TextBlock Grid.Row="0" Grid.Column="7" Text="{Binding Legend.MaxVelocityScale}" HorizontalAlignment="Right" Foreground="{StaticResource PulseFontColor}" VerticalAlignment="Center"/>
+								
+								<!--3 Middle values seperated evenly-->
+								<Grid Grid.Column="1" Grid.ColumnSpan="6">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*" />
+										<ColumnDefinition Width="*" />
+										<ColumnDefinition Width="*" />
+									</Grid.ColumnDefinitions>
+									
+									<!--Left Middle Value with the lines on the scale image-->
+									<TextBlock Grid.Column="0" Text="{Binding Legend.HalfMinVelocityScale}" HorizontalAlignment="Center" Foreground="{StaticResource PulseFontColor}" VerticalAlignment="Center"/>
+									
+									<!--Middle Middle Value with the lines on the scale image-->
+									<TextBlock Grid.Column="1" Text="{Binding Legend.HalfVelocityScale}" HorizontalAlignment="Center" Foreground="{StaticResource PulseFontColor}" VerticalAlignment="Center"/>
+									
+									<!--Right Middle Value with the lines on the scale image-->
+									<TextBlock Grid.Column="2" Text="{Binding Legend.HalfMaxVelocityScale}" HorizontalAlignment="Center" Foreground="{StaticResource PulseFontColor}" VerticalAlignment="Center"/>
+									
+								</Grid>
+							</Grid>
+						</StackPanel>
+					</Viewbox>
+					
+					<!--Data-->
+					<DataGrid Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" ItemsSource="{Binding WaterDataList}" AutoGenerateColumns="False" Margin="5" VerticalAlignment="Top" Background="Transparent" BorderBrush="Transparent">
+						<DataGrid.Columns>
+							<DataGridTextColumn Header="Bin" Binding="{Binding Bin}" />
+							<DataGridTextColumn Header="Magnitude" Binding="{Binding Mag}" />
+							<DataGridTextColumn Header="Direction" Binding="{Binding Dir}" />
+						</DataGrid.Columns>
+						<DataGrid.RowStyle>
+							<Style TargetType="{x:Type DataGridRow}">
+								<Setter Property="FontSize" Value="14"/>
+								<Setter Property="FontFamily" Value="Arial"/>
+								<Setter Property="FontWeight" Value="Bold"/>
+								<Setter Property="Foreground" Value="White"/>
+								<Setter Property="Background" Value="Black"/>
+							</Style>
+						</DataGrid.RowStyle>
+					</DataGrid>
+					
+					
+				</Grid>
+					
+		
+				<!--Settings ViewModel-->
+				<Expander Header="Settings"  Grid.Row="2" Grid.ColumnSpan="2" Foreground="{StaticResource PulseFontColor}" HorizontalAlignment="Left" >
+					<ContentControl cal:View.Model="{Binding SettingsVM}"  />
+				</Expander>
 		
 		
 		</Grid>

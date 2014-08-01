@@ -36,6 +36,8 @@
  * 05/30/2014      RC          0.0.1      Initial coding
  * 06/02/2014      RC          0.0.2      Added Running average.
  * 06/02/2014      RC          0.0.3      Added new line at the end of the string output.
+ * 07/29/2014      RC          0.0.4      Fixed setting the Min and Max bin to the output.
+ * 08/01/2014      RC          0.0.4      Added WaterDataList to display the data.
  * 
  * 
  */
@@ -57,7 +59,7 @@ namespace RTI
     public class HomeViewModel : PropertyChangedBase, IDeactivate
     {
 
-        #region Structs 
+        #region Class and Structs 
 
         /// <summary>
         /// Struct to hold the average velocity,
@@ -106,6 +108,27 @@ namespace RTI
             /// String of the latest data.
             /// </summary>
             public string DataStr;
+        }
+
+        /// <summary>
+        /// Water data info.
+        /// </summary>
+        public class WaterData
+        {
+            /// <summary>
+            /// Bin number.
+            /// </summary>
+            public int Bin { get; set; }
+
+            /// <summary>
+            /// Magintude.
+            /// </summary>
+            public string Mag { get; set; }
+
+            /// <summary>
+            /// Direction.
+            /// </summary>
+            public string Dir { get; set; }
         }
 
         #endregion
@@ -157,7 +180,7 @@ namespace RTI
         /// The maximum number of ensembles to
         /// accumulate for the average.
         /// </summary>
-        private int _maxRunningAvgCount;
+        //private int _maxRunningAvgCount;
 
         #endregion
 
@@ -306,14 +329,9 @@ namespace RTI
         /// <summary>
         /// Average Velocity.
         /// </summary>
-        public double AvgVel
+        public string AvgVel
         {
-            get { return _AvgVel; }
-            set
-            {
-                _AvgVel = value;
-                RaisePropertyChangedEventImmediately("AvgVel");
-            }
+            get { return _AvgVel.ToString("0.000"); }
         }
 
         /// <summary>
@@ -323,14 +341,9 @@ namespace RTI
         /// <summary>
         /// Average Direction.
         /// </summary>
-        public double AvgDir
+        public string AvgDir
         {
-            get { return _AvgDir; }
-            set
-            {
-                _AvgDir = value;
-                RaisePropertyChangedEventImmediately("AvgDir");
-            }
+            get { return _AvgDir.ToString("0.000"); }
         }
 
         /// <summary>
@@ -340,14 +353,9 @@ namespace RTI
         /// <summary>
         /// Maximum Velocity.
         /// </summary>
-        public double MaxVel
+        public string MaxVel
         {
-            get { return _MaxVel; }
-            set
-            {
-                _MaxVel = value;
-                RaisePropertyChangedEventImmediately("MaxVel");
-            }
+            get { return _MaxVel.ToString("0.000"); }
         }
 
         #endregion
@@ -382,6 +390,99 @@ namespace RTI
 
         #endregion
 
+        #region Plot
+
+        /// <summary>
+        /// Velocity plot.
+        /// </summary>
+        public BinPlot3D VelPlot { get; set; }
+
+        /// <summary>
+        /// List of vector data.
+        /// </summary>
+        public List<WaterData> WaterDataList { get; set; }
+
+        /// <summary>
+        /// Legend for the plot.  This will keep track of the
+        /// legend image and min to max values for the legend.
+        /// </summary>
+        public ContourPlotLegendViewModel Legend { get; set; }
+
+        
+        /// <summary>
+        /// Plot size.
+        /// </summary>
+        private int _PlotSize;
+        /// <summary>
+        /// Plot size.
+        /// </summary>
+        public int PlotSize
+        {
+            get { return _PlotSize; }
+            set
+            {
+                _PlotSize = value;
+                RaisePropertyChangedEventImmediately("PlotSize");
+            }
+        }
+
+        /// <summary>
+        /// Minimum Velocity.
+        /// This will represent to lowest value in the 
+        /// color spectrum.  Anything with this value or
+        /// lower will have the lowest color in the 
+        /// color map.
+        /// </summary>
+        private double _minVelocity;
+        /// <summary>
+        /// Minimum velocity property.
+        /// </summary>
+        public double MinVelocity
+        {
+            get { return _minVelocity; }
+            set
+            {
+                _minVelocity = value;
+
+                // Update the legend
+                Legend.MinVelocity = value;
+                VelPlot.MinVelocity = value;
+
+                this.RaisePropertyChangedEventImmediately("MinVelocity");
+                this.RaisePropertyChangedEventImmediately("Legend");
+                this.RaisePropertyChangedEventImmediately("VelPlot");
+            }
+        }
+
+        /// <summary>
+        /// Max Velocities.  This represents the greatest
+        /// value in the color spectrum.  Anything with 
+        /// this value or greater will have the greatest
+        /// color in the color map.
+        /// </summary>
+        private double _maxVelocity;
+        /// <summary>
+        /// Max velocity property.
+        /// </summary>
+        public double MaxVelocity
+        {
+            get { return _maxVelocity; }
+            set
+            {
+                _maxVelocity = value;
+                
+                // Update the legend
+                Legend.MaxVelocity = value;
+                VelPlot.MaxVelocity = value;
+
+                this.RaisePropertyChangedEventImmediately("MaxVelocity");
+                this.RaisePropertyChangedEventImmediately("Legend");
+                this.RaisePropertyChangedEventImmediately("VelPlot");
+            }
+        }
+
+        #endregion
+
         #endregion
 
         /// <summary>
@@ -392,6 +493,17 @@ namespace RTI
             // Set the list
             CommPortList = SerialOptions.PortOptions;
             BaudRateList = SerialOptions.BaudRateOptions;
+
+            // Setup plot
+            VelPlot = new BinPlot3D();
+            VelPlot.CylinderRadius = 0;
+            VelPlot.ColormapBrushSelection = ColormapBrush.ColormapBrushEnum.Jet;
+            VelPlot.MinVelocity = Settings.Default.MinVelocity;
+            VelPlot.MaxVelocity = Settings.Default.MaxVelocity;
+
+            Legend = new ContourPlotLegendViewModel(VelPlot.ColormapBrushSelection, VelPlot.MinVelocity, VelPlot.MaxVelocity);
+
+            PlotSize = Settings.Default.PlotSize;
 
             // Try to select any available comm ports
             if (!string.IsNullOrEmpty(Settings.Default.AdcpCommPort))
@@ -446,7 +558,7 @@ namespace RTI
             ConnectOutputSerialPort();
 
             // Settings ViewModel
-            SettingsVM = new SettingsViewModel();
+            SettingsVM = new SettingsViewModel(this);
         }
 
 
@@ -645,6 +757,9 @@ namespace RTI
             string ensNum = ensemble.EnsembleData.EnsembleNumber.ToString();
             AvgData avgData = AverageWaterColumn(ensemble);
 
+            // Set the max velocity for the plot
+            VelPlot.MaxVelocity = avgData.MaxVel;
+
             // Accumulate the data
             // Keep the list length for the running average
             while (_runningAvgBuffer.Count >= Settings.Default.MaxRunningAvgCount)
@@ -686,18 +801,49 @@ namespace RTI
 
             int minBin = Settings.Default.MinBin;                   // Get the minimum bin from the settings
             int maxBin = FindMaxBin(ensemble);                      // Get the maximum bin from the settings for from BT
+            avgData.MinBin = minBin;
+            avgData.MaxBin = maxBin;
 
-            // Calculate the average for the water column
-            if (ensemble.IsEarthVelocityAvail && ensemble.EarthVelocityData.IsVelocityVectorAvail)
+            if (Settings.Default.SelectedTransform == Core.Commons.Transforms.EARTH)
             {
-                avgData = AverageData(ensemble.EarthVelocityData.VelocityVectors, minBin, maxBin);
+                // Calculate the average for the water column
+                if (ensemble.IsEarthVelocityAvail && ensemble.EarthVelocityData.IsVelocityVectorAvail)
+                {
+                    avgData = AverageData(ensemble.EarthVelocityData.VelocityVectors, minBin, maxBin);
+                    SetWaterDataList(ensemble.EarthVelocityData.VelocityVectors);
+                }
+                else if (ensemble.IsEarthVelocityAvail && !ensemble.EarthVelocityData.IsVelocityVectorAvail)
+                {
+                    // Velocity vectors not created, so create now
+                    DataSet.VelocityVectorHelper.CreateVelocityVector(ref ensemble);
+
+                    avgData = AverageData(ensemble.EarthVelocityData.VelocityVectors, minBin, maxBin);
+                    SetWaterDataList(ensemble.EarthVelocityData.VelocityVectors);
+                }
+
+                // Velocity 3D plot
+                VelPlot.AddIncomingData(DataSet.VelocityVectorHelper.GetEarthVelocityVectors(ensemble));
+
             }
-            else if (ensemble.IsEarthVelocityAvail && !ensemble.EarthVelocityData.IsVelocityVectorAvail)
+            else
             {
-                // Velocity vectors not created, so create now
-                DataSet.VelocityVectorHelper.CreateVelocityVector(ref ensemble);
+                // Calculate the average for the water column
+                if (ensemble.IsInstrumentVelocityAvail && ensemble.InstrumentVelocityData.IsVelocityVectorAvail)
+                {
+                    avgData = AverageData(ensemble.InstrumentVelocityData.VelocityVectors, minBin, maxBin);
+                    SetWaterDataList(ensemble.InstrumentVelocityData.VelocityVectors);
+                }
+                else if (ensemble.IsInstrumentVelocityAvail && !ensemble.InstrumentVelocityData.IsVelocityVectorAvail)
+                {
+                    // Velocity vectors not created, so create now
+                    DataSet.VelocityVectorHelper.CreateVelocityVector(ref ensemble);
 
-                avgData = AverageData(ensemble.EarthVelocityData.VelocityVectors, minBin, maxBin);
+                    avgData = AverageData(ensemble.InstrumentVelocityData.VelocityVectors, minBin, maxBin);
+                    SetWaterDataList(ensemble.InstrumentVelocityData.VelocityVectors);
+                }
+
+                // Velocity 3D plot
+                VelPlot.AddIncomingData(DataSet.VelocityVectorHelper.GetInstrumentVelocityVectors(ensemble));
             }
 
             return avgData;
@@ -761,10 +907,12 @@ namespace RTI
                 // Accumulate the data
                 for (int x = 0; x < _runningAvgBuffer.Count; x++)
                 {
-                    if (_runningAvgBuffer[x].MaxVel > maxVel)
-                    {
-                        maxVel = _runningAvgBuffer[x].MaxVel;
-                    }
+                    // Set the maximum velocity
+                    maxVel = Math.Max(_runningAvgBuffer[x].MaxVel, maxVel);
+
+                    // Set the Min and Max bin
+                    avgData.MinBin = _runningAvgBuffer[x].MinBin;
+                    avgData.MaxBin = _runningAvgBuffer[x].MaxBin;
 
                     // Accumulate the average data
                     accumAvgVel += _runningAvgBuffer[x].AvgVel;
@@ -835,6 +983,41 @@ namespace RTI
             avgData.MaxBin = maxBin;
 
             return avgData;
+        }
+
+        /// <summary>
+        /// Set the WaterData list.
+        /// </summary>
+        /// <param name="vv">Velocity Vectors to set the values.</param>
+        private void SetWaterDataList(RTI.DataSet.VelocityVector[] vv)
+        {
+            // Create a new list
+            WaterDataList = new List<WaterData>(); 
+
+            if (vv.Length > 0)
+            {
+                for (int x = 0; x < vv.Count(); x++)
+                {
+                    // Check for bad value for mag
+                    string mag = "-";
+                    if (vv[x].Magnitude != DataSet.Ensemble.BAD_VELOCITY)
+                    {
+                        mag = vv[x].Magnitude.ToString("0.00");
+                    }
+
+                    // Check for bad value for dir
+                    string dir = "-";
+                    if (vv[x].DirectionYNorth != DataSet.Ensemble.BAD_VELOCITY)
+                    {
+                        dir = vv[x].DirectionYNorth.ToString("0.00");
+                    }
+
+                    // Add the data to the list
+                    WaterDataList.Add(new WaterData() { Bin = x + 1, Dir = dir, Mag = mag});
+                }
+            }
+
+            this.RaisePropertyChangedEventImmediately("WaterDataList");
         }
 
         #endregion
@@ -952,9 +1135,12 @@ namespace RTI
             Debug.WriteLine(_outputBuffer.DataStr);
 
             // Update the display
-            AvgVel = _outputBuffer.Data.AvgVel;
-            AvgDir = _outputBuffer.Data.AvgDir;
-            MaxVel = _outputBuffer.Data.MaxVel;
+            _AvgVel = _outputBuffer.Data.AvgVel;
+            _AvgDir = _outputBuffer.Data.AvgDir;
+            _MaxVel = _outputBuffer.Data.MaxVel;
+            RaisePropertyChangedEventImmediately("AvgVel");
+            RaisePropertyChangedEventImmediately("AvgDir");
+            RaisePropertyChangedEventImmediately("MaxVel");
         }
 
         #endregion

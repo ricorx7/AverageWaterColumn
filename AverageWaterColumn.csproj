@@ -35,15 +35,20 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Caliburn.Micro, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="HelixToolkit.Wpf">
+      <HintPath>Packages\HelixToolkit\HelixToolkit.Wpf.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>Packages\log4net.1.2.10.0\log4net.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework.Aero" />
-    <Reference Include="RTI">
-      <HintPath>Packages\RTI.2.21.4\RTI.dll</HintPath>
+    <Reference Include="RTI, Version=2.23.0.16064, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Packages\RTI.2.23.0\RTI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -70,12 +75,24 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="Models\BinPlot3D.cs" />
+    <Compile Include="Models\ColormapBrush.cs" />
+    <Compile Include="Models\ColormapHelper.cs" />
+    <Compile Include="Models\ContourPlotLegendView.xaml.cs">
+      <DependentUpon>ContourPlotLegendView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Models\ContourPlotLegendViewModel.cs" />
+    <Compile Include="Models\SimpleBitmap.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="ViewModels\AboutViewModel.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
     <Compile Include="ViewModels\MenuViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
+    <Page Include="Models\ContourPlotLegendView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Styles\Defaults.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -154,9 +171,7 @@
     <Content Include="Lib\Caliburn.Micro.dll" />
     <Content Include="Lib\System.Windows.Interactivity.dll" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

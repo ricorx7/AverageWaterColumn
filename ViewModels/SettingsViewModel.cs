@@ -46,6 +46,7 @@ namespace RTI
     using System.Text;
     using AverageWaterColumn.Properties;
     using Caliburn.Micro;
+    using System.ComponentModel;
 
     /// <summary>
     /// Settings for the application.
@@ -53,6 +54,15 @@ namespace RTI
     /// </summary>
     public class SettingsViewModel : PropertyChangedBase
     {
+        #region Variables
+
+        /// <summary>
+        /// Home View Model.
+        /// </summary>
+        private HomeViewModel _homeVM;
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -111,11 +121,18 @@ namespace RTI
             get { return _MaxBin; }
             set
             {
-                _MaxBin = value;
+                if (value > _MinBin)
+                {
+                    _MaxBin = value;
 
-                // Save the option
-                Settings.Default.MaxBin = value;
-                Settings.Default.Save();
+                    // Save the option
+                    Settings.Default.MaxBin = value;
+                    Settings.Default.Save();
+                }
+                else
+                {
+                    MaxBin = _MinBin + 1;
+                }
 
                 RaisePropertyChangedEventImmediately("MaxBin");
             }
@@ -186,26 +203,151 @@ namespace RTI
                 RaisePropertyChangedEventImmediately("MaxRunningAvgCount");
             }
         }
+
+        #region Selected Transform
+
+        /// <summary>
+        /// Selection of what coordinate transform to display.
+        /// </summary>
+        private Core.Commons.Transforms _SelectedTransform;
+        /// <summary>
+        /// Selection of what coordinate transform to display.
+        /// </summary>
+        public Core.Commons.Transforms SelectedTransform
+        {
+            get { return _SelectedTransform; }
+            set
+            {
+                _SelectedTransform = value;
+
+                Settings.Default.SelectedTransform = value;
+                Settings.Default.Save();
+
+                RaisePropertyChangedEventImmediately("SelectedTransform");
+            }
+        }
+
+        /// <summary>
+        /// List of coordinate transforms.
+        /// </summary>
+        private BindingList<Core.Commons.Transforms> _transformList;
+        /// <summary>
+        /// List of coordinate transforms.
+        /// </summary>
+        public BindingList<Core.Commons.Transforms> TransformList
+        {
+            get { return _transformList; }
+            set
+            {
+                _transformList = value;
+                RaisePropertyChangedEventImmediately("TransformList");
+            }
+        }
+
+        /// <summary>
+        /// Plot size.
+        /// </summary>
+        private int _PlotSize;
+        /// <summary>
+        /// Plot size.
+        /// </summary>
+        public int PlotSize
+        {
+            get { return _PlotSize; }
+            set
+            {
+                _PlotSize = value;
+
+                Settings.Default.PlotSize = value;
+                Settings.Default.Save();
+
+                _homeVM.PlotSize = _PlotSize;
+
+                RaisePropertyChangedEventImmediately("PlotSize");
+            }
+        }
+
+        /// <summary>
+        /// Minimum Velocity.
+        /// This will represent to lowest value in the 
+        /// color spectrum.  Anything with this value or
+        /// lower will have the lowest color in the 
+        /// color map.
+        /// </summary>
+        private double _minVelocity;
+        /// <summary>
+        /// Minimum velocity property.
+        /// </summary>
+        public double MinVelocity
+        {
+            get { return _minVelocity; }
+            set
+            {
+                _minVelocity = value;
+                this.RaisePropertyChangedEventImmediately("MinVelocity");
+
+                Settings.Default.MinVelocity = value;
+                Settings.Default.Save();
+
+                // Update the legend
+                _homeVM.MinVelocity = value;
+            }
+        }
+
+        /// <summary>
+        /// Max Velocities.  This represents the greatest
+        /// value in the color spectrum.  Anything with 
+        /// this value or greater will have the greatest
+        /// color in the color map.
+        /// </summary>
+        private double _maxVelocity;
+        /// <summary>
+        /// Max velocity property.
+        /// </summary>
+        public double MaxVelocity
+        {
+            get { return _maxVelocity; }
+            set
+            {
+                _maxVelocity = value;
+                this.RaisePropertyChangedEventImmediately("MaxVelocity");
+
+                Settings.Default.MaxVelocity = value;
+                Settings.Default.Save();
+
+                // Update the legend
+                _homeVM.MaxVelocity = value;
+            }
+        }
+
+
+        #endregion
+
         #endregion
 
         /// <summary>
         /// Initialize the values.
         /// </summary>
-        public SettingsViewModel()
+        public SettingsViewModel(HomeViewModel homeVM)
         {
+            _homeVM = homeVM;
+
+            TransformList = new BindingList<Core.Commons.Transforms>();
+            TransformList.Add(Core.Commons.Transforms.EARTH);
+            TransformList.Add(Core.Commons.Transforms.INSTRUMENT);
+
             _MinBin = Settings.Default.MinBin;
             _MaxBin = Settings.Default.MaxBin;
             _IsUseFixedMaxBin = Settings.Default.UseFixedMaxBin;
             _AdcpCommands = Settings.Default.AdcpCommands;
             _OutputSpeed = Settings.Default.OutputSpeed;
             _MaxRunningAvgCount = Settings.Default.MaxRunningAvgCount;
+            _SelectedTransform = Settings.Default.SelectedTransform;
+            _PlotSize = Settings.Default.PlotSize;
+            _minVelocity = Settings.Default.MinVelocity;
+            _maxVelocity = Settings.Default.MaxVelocity;
 
-            RaisePropertyChangedEventImmediately("MinBin");
-            RaisePropertyChangedEventImmediately("MaxBin");
-            RaisePropertyChangedEventImmediately("IsUseFixedMaxBin");
-            RaisePropertyChangedEventImmediately("AdcpCommands");
-            RaisePropertyChangedEventImmediately("OutputSpeed");
-            RaisePropertyChangedEventImmediately("MaxRunningAvgCount");
+            RaisePropertyChangedEventImmediately(null);
         }
 
     }

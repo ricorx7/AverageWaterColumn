@@ -142,5 +142,60 @@ namespace AverageWaterColumn.Properties {
                 this["MaxRunningAvgCount"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public RTI.Core.Commons.Transforms SelectedTransform
+        {
+            get {
+                return ((RTI.Core.Commons.Transforms)(this["SelectedTransform"]));
+            }
+            set {
+                this["SelectedTransform"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("520")]
+        public int PlotSize {
+            get {
+                return ((int)(this["PlotSize"]));
+            }
+            set {
+                this["PlotSize"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.0")]
+        public double MinVelocity
+        {
+            get
+            {
+                return ((double)(this["MinVelocity"]));
+            }
+            set
+            {
+                this["MinVelocity"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2.0")]
+        public double MaxVelocity
+        {
+            get
+            {
+                return ((double)(this["MaxVelocity"]));
+            }
+            set
+            {
+                this["MaxVelocity"] = value;
+            }
+        }
     }
 }

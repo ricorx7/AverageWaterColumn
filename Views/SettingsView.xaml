@@ -13,6 +13,8 @@
 			<RowDefinition Height="Auto" /> 
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />  
+			<RowDefinition Height="Auto" /> 
+			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />   
 	   </Grid.RowDefinitions>
 	   
@@ -85,9 +87,60 @@
 				
 			</Grid>
 		</Border>
+		
+		<!--Transform-->
+		<Border Grid.Row="4" Background="{StaticResource PulseBackBorder1Color}" Margin="5" >
+	   		<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+				
+				<TextBlock Grid.Row="0" Text="Coordinate Transform" Margin="5" FontSize="16" />
+				
+				<ComboBox Grid.Row="1" ItemsSource="{Binding Path=TransformList}" SelectedItem="{Binding Path=SelectedTransform}" HorizontalAlignment="Left" Margin="5" />							
+				
+			</Grid>
+		</Border>
+		
+		<!--Plot-->
+		<Border Grid.Row="5" Background="{StaticResource PulseBackBorder1Color}" Margin="5" >
+	   		<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+				
+				<TextBlock Grid.Row="0" Text="Plot" Margin="5" FontSize="16" />
+				
+				<Grid Grid.Row="1">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="Auto" />
+					</Grid.ColumnDefinitions>
+					
+					<TextBlock Grid.Row="0" Grid.Column="0" Text="Plot Size:" Margin="5" />
+					<extToolkit:IntegerUpDown Grid.Row="0" Grid.Column="1" Value="{Binding PlotSize}" Margin="5" Minimum="100" Increment="25" MinWidth="75" HorizontalAlignment="Left" />	
+					
+					<TextBlock Grid.Row="1" Grid.Column="0" Text="Min Velocity:" Margin="5" />
+					<extToolkit:DoubleUpDown Grid.Row="1" Grid.Column="1" Value="{Binding MinVelocity}" Margin="5" Increment="0.25" MinWidth="75" HorizontalAlignment="Left" />	
+					
+					<TextBlock Grid.Row="2" Grid.Column="0" Text="Max Velocity:" Margin="5" />
+					<extToolkit:DoubleUpDown Grid.Row="2" Grid.Column="1" Value="{Binding MaxVelocity}" Margin="5" Increment="0.25" MinWidth="75" HorizontalAlignment="Left" />	
+					
+					
+				</Grid>						
+				
+			</Grid>
+		</Border>
 
 	   <!--Adcp Commands-->
-	   <Border Grid.Row="4" Background="{StaticResource PulseBackBorder1Color}" Margin="5" >
+	   <Border Grid.Row="6" Background="{StaticResource PulseBackBorder1Color}" Margin="5" >
 	   		<Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto" />

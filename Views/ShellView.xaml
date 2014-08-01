@@ -6,7 +6,7 @@
         mc:Ignorable="d" 
         x:Class="RTI.ShellView"
         xmlns:cal="http://www.caliburnproject.org"	
-        Title="RTI - Average Water Column" Background="{StaticResource PulseBackgroundColor}" >
+        Title="RTI - Average Water Column" Background="{StaticResource PulseBackgroundColor}" Width="1000" Height="950" >
     <ScrollViewer>
 	<Grid>
         <Grid.RowDefinitions>
