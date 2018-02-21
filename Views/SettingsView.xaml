@@ -15,12 +15,13 @@
 			<RowDefinition Height="Auto" />  
 			<RowDefinition Height="Auto" /> 
 			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />   
-	   </Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 	   
 	   
 	   <!--Minimum Bin-->
-	   <Border Grid.Row="0" Background="{StaticResource PulseBackBorder1Color}" Margin="5" >
+	   <Border Grid.Row="0" Background="{StaticResource PulseBackBorder1Color}" Margin="5" ToolTip="Set the minimum bin to average together." >
 	   		<Grid>
 	   			<Grid.RowDefinitions>
 					<RowDefinition Height="Auto" />
@@ -35,7 +36,7 @@
 	   </Border>
 	   
 	   <!--Maximum Bin-->
-	   <Border Grid.Row="1" Background="{StaticResource PulseBackBorder1Color}" Margin="5" >
+	   <Border Grid.Row="1" Background="{StaticResource PulseBackBorder1Color}" Margin="5" ToolTip="Set the Maximum bin to use in the average.">
 	   		<Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto" />
@@ -47,21 +48,36 @@
 	   			<TextBlock Grid.Row="0" Text="Maximum Bin" Margin="5" FontSize="16" />
 				
 				<StackPanel Grid.Row="1" Orientation="Horizontal">
-	   				<CheckBox IsChecked="{Binding IsUseFixedMaxBin}" Content="Use Fixed Max Bin" Foreground="{StaticResource PulseFontColor}" Margin="5" />
-					<extToolkit:IntegerUpDown Value="{Binding MaxBin}" Margin="5" Minimum="0" Maximum="200" MinWidth="50" HorizontalAlignment="Left" />	
+	   				<CheckBox IsChecked="{Binding IsUseFixedMaxBin}" Content="Use Fixed Max Bin" Foreground="{StaticResource PulseFontColor}" Margin="5" ToolTip="Use a fixed max bin if Bottom track is not available or if you know Bottom Track is not finding the correct bottom.  If this is not selected, the bottom will be found using Bottom Track range." />
+					<extToolkit:IntegerUpDown Value="{Binding MaxBin}" Margin="5" Minimum="0" Maximum="200" MinWidth="50" HorizontalAlignment="Left" ToolTip="Fixed bin to use as the bottom.  This can also be used to move the average area up." />	
 				</StackPanel>		
 	   		</Grid>
 	   </Border>
 
-		<!--Output Speed-->
-		<Border Grid.Row="2" Background="{StaticResource PulseBackBorder1Color}" Margin="5" >
+        <!--Transform-->
+        <Border Grid.Row="2" Background="{StaticResource PulseBackBorder1Color}" Margin="5" ToolTip="Select the heading source to use. Use the GPS if the ADCP's magnetic compass is seeing magnetic interference.  Input GPS data using the GPS serial port and HDT, VTG and GGA message.">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Heading Source" Margin="5" FontSize="16" />
+
+                <ComboBox Grid.Row="1" ItemsSource="{Binding Path=HeadingSourceList}" SelectedItem="{Binding Path=SelectedHeadingSource}" HorizontalAlignment="Left" Margin="5" />
+
+            </Grid>
+        </Border>
+
+        <!--Output Speed-->
+		<Border Grid.Row="3" Background="{StaticResource PulseBackBorder1Color}" Margin="5" ToolTip="Refresh rate of the display.  This will update the display with the latest values." >
 	   		<Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
 				
-				<TextBlock Grid.Row="0" Text="Output Speed (ms)" Margin="5" FontSize="16" />
+				<TextBlock Grid.Row="0" Text="Refresh Rate (ms)" Margin="5" FontSize="16" />
 				
 				<StackPanel Grid.Row="1" Orientation="Horizontal">
 					<extToolkit:IntegerUpDown Value="{Binding OutputSpeed}" Margin="5" Minimum="250" Increment="250" MinWidth="75" HorizontalAlignment="Left" />	
@@ -72,7 +88,7 @@
 		</Border>
 		
 		<!--Max Running Average Count-->
-		<Border Grid.Row="3" Background="{StaticResource PulseBackBorder1Color}" Margin="5" >
+		<Border Grid.Row="4" Background="{StaticResource PulseBackBorder1Color}" Margin="5" ToolTip="The maximum number of ensembles to accumulate in the running average." >
 	   		<Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto" />
@@ -89,7 +105,7 @@
 		</Border>
 		
 		<!--Transform-->
-		<Border Grid.Row="4" Background="{StaticResource PulseBackBorder1Color}" Margin="5" >
+		<Border Grid.Row="5" Background="{StaticResource PulseBackBorder1Color}" Margin="5"  ToolTip="The coordinate transform to display the data in.  Earth is (East, North, Vertical, Error).  Instrument is (X, Y, Z, Error)." >
 	   		<Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto" />
@@ -104,7 +120,7 @@
 		</Border>
 		
 		<!--Plot-->
-		<Border Grid.Row="5" Background="{StaticResource PulseBackBorder1Color}" Margin="5" >
+		<Border Grid.Row="6" Background="{StaticResource PulseBackBorder1Color}" Margin="5" >
 	   		<Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto" />
@@ -125,13 +141,13 @@
 					</Grid.ColumnDefinitions>
 					
 					<TextBlock Grid.Row="0" Grid.Column="0" Text="Plot Size:" Margin="5" />
-					<extToolkit:IntegerUpDown Grid.Row="0" Grid.Column="1" Value="{Binding PlotSize}" Margin="5" Minimum="100" Increment="25" MinWidth="75" HorizontalAlignment="Left" />	
+					<extToolkit:IntegerUpDown Grid.Row="0" Grid.Column="1" Value="{Binding PlotSize}" Margin="5" Minimum="100" Increment="25" MinWidth="75" HorizontalAlignment="Left"  ToolTip="Size of the plot."/>	
 					
 					<TextBlock Grid.Row="1" Grid.Column="0" Text="Min Velocity:" Margin="5" />
-					<extToolkit:DoubleUpDown Grid.Row="1" Grid.Column="1" Value="{Binding MinVelocity}" Margin="5" Increment="0.25" MinWidth="75" HorizontalAlignment="Left" />	
+					<extToolkit:DoubleUpDown Grid.Row="1" Grid.Column="1" Value="{Binding MinVelocity}" Margin="5" Increment="0.25" MinWidth="75" HorizontalAlignment="Left" ToolTip="Minimum velocity to display on the plot." />	
 					
 					<TextBlock Grid.Row="2" Grid.Column="0" Text="Max Velocity:" Margin="5" />
-					<extToolkit:DoubleUpDown Grid.Row="2" Grid.Column="1" Value="{Binding MaxVelocity}" Margin="5" Increment="0.25" MinWidth="75" HorizontalAlignment="Left" />	
+					<extToolkit:DoubleUpDown Grid.Row="2" Grid.Column="1" Value="{Binding MaxVelocity}" Margin="5" Increment="0.25" MinWidth="75" HorizontalAlignment="Left" ToolTip="Maximum velocity to display on the plot." />	
 					
 					
 				</Grid>						
@@ -140,7 +156,7 @@
 		</Border>
 
 	   <!--Adcp Commands-->
-	   <Border Grid.Row="6" Background="{StaticResource PulseBackBorder1Color}" Margin="5" >
+	   <Border Grid.Row="7" Background="{StaticResource PulseBackBorder1Color}" Margin="5" ToolTip="Additional commands to send to the ADCP when the START PING button is clicked." >
 	   		<Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto" />

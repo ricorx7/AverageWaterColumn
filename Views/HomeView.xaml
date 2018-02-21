@@ -10,223 +10,328 @@
              Background="{StaticResource PulseBackgroundColor}">
 	        <Grid>
 	            <Grid.RowDefinitions>
-	                <RowDefinition Height="Auto" />
-	                <RowDefinition Height="Auto" />
-	                <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
 	            </Grid.RowDefinitions>
-	            <Grid.ColumnDefinitions>
-	                <ColumnDefinition Width="Auto" />
-	                <ColumnDefinition Width="Auto" />
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
 	            </Grid.ColumnDefinitions>
 
-	            <!--Serial Input-->
-	            <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource PulseBackBorder2Color}" Margin="5">
-	                <Grid>
-	                    <StackPanel>
-	                        <TextBlock Text="ADCP Input" Foreground="{StaticResource PulseFontColor}" FontSize="26.667" Margin="5,0" />
-	                        <StackPanel Orientation="Horizontal">
-	                            <ComboBox ItemsSource="{Binding CommPortList}" Width="115" SelectedItem="{Binding SelectedAdcpCommPort}" Margin="5" />
-	                            <Button Content="Scan" x:Name="ScanAdcpSerialPortsCmd" Margin="5"/>
-	                        </StackPanel>
-	                        <ComboBox ItemsSource="{Binding BaudRateList}" SelectedItem="{Binding SelectedAdcpBaudRate}" Margin="5" Width="160" HorizontalAlignment="Left" />
-	                    </StackPanel>
-	                </Grid>
-	            </Border>
+            <!--Data Displayed-->
+	    <Border Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                
+                <!--Water Speed-->
+                <Border Grid.Column="0" Margin="10" Background="{StaticResource PulseBackBorder2Color}" ToolTip="Average water speed and direction based off the settings.">
+                <Grid >
+	                <Grid.RowDefinitions>
+	                    <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+	                <Grid.ColumnDefinitions>
+	                    <ColumnDefinition Width="Auto" />
+	                    <ColumnDefinition Width="Auto" />
+	                    <ColumnDefinition Width="Auto" />
+	                </Grid.ColumnDefinitions>
 
-	            <!--Serial Output-->
-	            <Border Grid.Row="1" Grid.Column="0" Background="{StaticResource PulseBackBorder2Color}" Margin="5">
-	                <Grid Grid.Row="1" Grid.Column="0">
-	                    <StackPanel>
-	                        <TextBlock Text="Serial Output" Foreground="{StaticResource PulseFontColor}" FontSize="26.667" Margin="5,0" />
-	                        <StackPanel Orientation="Horizontal">
-	                            <ComboBox ItemsSource="{Binding CommPortList}" Width="115" SelectedItem="{Binding SelectedOutputCommPort}" Margin="5" />
-	                            <Button Content="Scan" x:Name="ScanOutputSerialPortsCmd" Margin="5"/>
-	                        </StackPanel>
-	                        <ComboBox ItemsSource="{Binding BaudRateList}" SelectedItem="{Binding SelectedOutputBaudRate}" Margin="5" Width="160" HorizontalAlignment="Left" />
-	                    </StackPanel>
-	                </Grid>
-	            </Border>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Water Speed" Foreground="{StaticResource PulseFontColor}" Margin="5" HorizontalAlignment="Center" FontSize="16" />
+                    
+	                <!--Avg Vel-->
+	                <TextBlock Grid.Row="1" Grid.Column="0" Text="Avg Vel" Foreground="{StaticResource PulseFontColor}" Margin="5,1" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
+	                <Border Grid.Row="2" Grid.Column="0" Background="{StaticResource PulseBackBorder3Color}" Margin="5" >
+	                    <TextBlock x:Name="AvgVel" Foreground="{StaticResource PulseFontHighlightColor}" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="29.333" />
+	                </Border>
 
-	            <!--Start/Stop Pinging-->
-	            <Border Grid.Row="0" Grid.Column="1">
-	                <StackPanel Orientation="Horizontal">
-	                    <Button  x:Name="StartPingingCmd" Style="{StaticResource ButtonStyle}"  Width="100" Height="100" Margin="20,5" Foreground="#FFC5CFC0" BorderBrush="#FFD9D3CE">
-	                        <Grid>
-	                            <Grid.RowDefinitions>
-	                                <RowDefinition Height="*" />
-	                                <RowDefinition Height="*" />
-	                            </Grid.RowDefinitions>
-	                            <Image Grid.Row="0" Source="../Images/start.png" />
-	                            <Viewbox Grid.Row="1">
-	                                <StackPanel>
-	                                    <TextBlock Text="Start" HorizontalAlignment="Center" />
-	                                    <TextBlock Text="Pinging" HorizontalAlignment="Center" />
-	                                </StackPanel>
-	                            </Viewbox>
-	                        </Grid>
-	                    </Button>
+	                <!--Avg Dir-->
+	                <TextBlock Grid.Row="1" Grid.Column="1" Text="Avg Dir" Foreground="{StaticResource PulseFontColor}" Margin="5,1" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
+	                <Border Grid.Row="2" Grid.Column="1" Background="{StaticResource PulseBackBorder3Color}" Margin="5" >
+                            <TextBlock x:Name="AvgDir" Foreground="{StaticResource PulseFontHighlightColor}" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="29.333" />
+	                </Border>
 
-	                    <Button x:Name="StopPingingCmd" Style="{StaticResource ButtonStyle}"  Width="100" Height="100" Margin="5" Foreground="#FFC5CFC0" BorderBrush="#FFD9D3CE">
-	                        <Grid>
-	                            <Grid.RowDefinitions>
-	                                <RowDefinition Height="*" />
-	                                <RowDefinition Height="*" />
-	                            </Grid.RowDefinitions>
-	                            <Image Grid.Row="0" Source="../Images/stop.png" />
-	                            <Viewbox Grid.Row="1">
-	                                <StackPanel>
-	                                    <TextBlock Text="Stop" HorizontalAlignment="Center" />
-	                                    <TextBlock Text="Pinging" HorizontalAlignment="Center" />
-	                                </StackPanel>
-	                            </Viewbox>
-	                        </Grid>
-	                    </Button>
-	                </StackPanel>
-	            </Border>
-
-	            <Border Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-	                <Grid>
-	                    <Grid.RowDefinitions>
-	                        <RowDefinition Height="Auto" />
-	                        <RowDefinition Height="Auto" />
-							<RowDefinition Height="Auto" />
-	                    </Grid.RowDefinitions>
-	                    <Grid.ColumnDefinitions>
-	                        <ColumnDefinition Width="Auto" />
-	                        <ColumnDefinition Width="Auto" />
-	                        <ColumnDefinition Width="Auto" />
-	                    </Grid.ColumnDefinitions>
-
-	                    <!--Avg Vel-->
-	                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Avg Vel" Foreground="{StaticResource PulseFontColor}" Margin="5,1" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
-	                    <Border Grid.Row="1" Grid.Column="0" Background="{StaticResource PulseBackBorder3Color}" Margin="5" >
-	                        <TextBlock x:Name="AvgVel" Foreground="{StaticResource PulseFontBrightColor}" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="29.333" />
-	                    </Border>
-
-	                    <!--Avg Dir-->
-	                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Avg Dir" Foreground="{StaticResource PulseFontColor}" Margin="5,1" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
-	                    <Border Grid.Row="1" Grid.Column="1" Background="{StaticResource PulseBackBorder3Color}" Margin="5" >
-	                        <TextBlock x:Name="AvgDir" Foreground="{StaticResource PulseFontBrightColor}" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="29.333" />
-	                    </Border>
-
-	                    <!--Max Vel-->
-	                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Max Vel" Foreground="{StaticResource PulseFontColor}" Margin="5,1" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
-	                    <Border Grid.Row="1" Grid.Column="2" Background="{StaticResource PulseBackBorder3Color}" Margin="5" >
-	                        <TextBlock x:Name="MaxVel" Foreground="{StaticResource PulseFontBrightColor}" Margin="5" HorizontalAlignment="Center" FontSize="29.333" />
-	                    </Border>
+	                <!--Max Vel-->
+	                <TextBlock Grid.Row="1" Grid.Column="2" Text="Max Vel" Foreground="{StaticResource PulseFontColor}" Margin="5,1" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
+	                <Border Grid.Row="2" Grid.Column="2" Background="{StaticResource PulseBackBorder3Color}" Margin="5" >
+                            <TextBlock x:Name="MaxVel" Foreground="{StaticResource PulseFontHighlightColor}" Margin="5" HorizontalAlignment="Center" FontSize="29.333" />
+	                </Border>
 						
-						<!--Output-->
-						<TextBlock Grid.Row="2" Grid.ColumnSpan="3" x:Name="OutputStr" Foreground="{StaticResource PulseFontBrightColor}" Margin="5" HorizontalAlignment="Left" d:LayoutOverrides="GridBox" Height="15.96" VerticalAlignment="Top" />
+				    <!--Output-->
+                        <TextBlock Grid.Row="3" Grid.ColumnSpan="3" x:Name="OutputStr" Foreground="{StaticResource PulseFontHighlightColor}" Margin="5" HorizontalAlignment="Left" d:LayoutOverrides="GridBox" Height="15.96" VerticalAlignment="Top" />
 
-	                </Grid>
-	            </Border>
-		
-				<!--Profile-->
-				<Grid Grid.Row="2" Grid.Column="1" Background="Black">
-					<Grid.RowDefinitions>
-						<RowDefinition Height="Auto" />
-						<RowDefinition Height="Auto" />
-					</Grid.RowDefinitions>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="Auto" />
-						<ColumnDefinition Width="Auto" />
-					</Grid.ColumnDefinitions>
-					
-					<!--ContentControl cal:View.Model="{Binding VelPlot}" /-->
-					<Viewbox Grid.Row="0" Grid.Column="0" Stretch="Fill" MaxHeight="{Binding PlotSize}">
-						<helix:HelixViewport3D x:Name="viewportSelectedEnsemble" ZoomExtentsWhenLoaded="False" ShowCoordinateSystem="False" ShowCameraInfo="False" ShowCameraTarget="False" ShowViewCube="True" CameraMode="Inspect" Orthographic="True" Width="400" Height="400" > 
-				      		<helix:HelixViewport3D.Camera>
-								<PerspectiveCamera UpDirection="0, 1, 0" Position="-0.381, -10.889, 29.000" LookDirection="0,0,-19.000"  />	
-							</helix:HelixViewport3D.Camera>
-							<helix:DefaultLights />
-							<rti:BinPlot3D Content="{Binding VelPlot.Content}">
-								<rti:BinPlot3D.Transform>
-									<Transform3DGroup>
-										<RotateTransform3D>
-											<RotateTransform3D.Rotation>
-												<AxisAngleRotation3D Axis="0,1,0" Angle="90"/>
-											</RotateTransform3D.Rotation>
-										</RotateTransform3D>
-									</Transform3DGroup>
-								</rti:BinPlot3D.Transform>
-							</rti:BinPlot3D>
-			        	</helix:HelixViewport3D>
-					</Viewbox>
-					
-					<!--Plot Legend-->
-					<Viewbox Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" Margin="5" >
-						<StackPanel>						
-							<!--Contour Legend Image-->
-							<Image Grid.Column="1" Source="{Binding Legend.LegendImage}" HorizontalAlignment="Right" />
-							
-							<!--Contour Plot Legend Label-->
-							<Grid>
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="*" />
-								</Grid.ColumnDefinitions>
+	            </Grid>
+                </Border>
 
-								<!--Min value pushed to the left with lines on the scale image-->
-								<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Legend.MinVelocityScale}" HorizontalAlignment="Left" Foreground="{StaticResource PulseFontColor}" VerticalAlignment="Center"/>
-								
-								<!--Max value pushed to the right with lines on the scale image-->
-								<TextBlock Grid.Row="0" Grid.Column="7" Text="{Binding Legend.MaxVelocityScale}" HorizontalAlignment="Right" Foreground="{StaticResource PulseFontColor}" VerticalAlignment="Center"/>
-								
-								<!--3 Middle values seperated evenly-->
-								<Grid Grid.Column="1" Grid.ColumnSpan="6">
-									<Grid.ColumnDefinitions>
-										<ColumnDefinition Width="*" />
-										<ColumnDefinition Width="*" />
-										<ColumnDefinition Width="*" />
-									</Grid.ColumnDefinitions>
-									
-									<!--Left Middle Value with the lines on the scale image-->
-									<TextBlock Grid.Column="0" Text="{Binding Legend.HalfMinVelocityScale}" HorizontalAlignment="Center" Foreground="{StaticResource PulseFontColor}" VerticalAlignment="Center"/>
-									
-									<!--Middle Middle Value with the lines on the scale image-->
-									<TextBlock Grid.Column="1" Text="{Binding Legend.HalfVelocityScale}" HorizontalAlignment="Center" Foreground="{StaticResource PulseFontColor}" VerticalAlignment="Center"/>
-									
-									<!--Right Middle Value with the lines on the scale image-->
-									<TextBlock Grid.Column="2" Text="{Binding Legend.HalfMaxVelocityScale}" HorizontalAlignment="Center" Foreground="{StaticResource PulseFontColor}" VerticalAlignment="Center"/>
-									
-								</Grid>
-							</Grid>
-						</StackPanel>
-					</Viewbox>
-					
-					<!--Data-->
-					<DataGrid Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" ItemsSource="{Binding WaterDataList}" AutoGenerateColumns="False" Margin="5" VerticalAlignment="Top" Background="Transparent" BorderBrush="Transparent">
-						<DataGrid.Columns>
-							<DataGridTextColumn Header="Bin" Binding="{Binding Bin}" />
-							<DataGridTextColumn Header="Magnitude" Binding="{Binding Mag}" />
-							<DataGridTextColumn Header="Direction" Binding="{Binding Dir}" />
-						</DataGrid.Columns>
-						<DataGrid.RowStyle>
-							<Style TargetType="{x:Type DataGridRow}">
-								<Setter Property="FontSize" Value="14"/>
-								<Setter Property="FontFamily" Value="Arial"/>
-								<Setter Property="FontWeight" Value="Bold"/>
-								<Setter Property="Foreground" Value="White"/>
-								<Setter Property="Background" Value="Black"/>
-							</Style>
-						</DataGrid.RowStyle>
-					</DataGrid>
-					
-					
-				</Grid>
-					
-		
-				<!--Settings ViewModel-->
-				<Expander Header="Settings"  Grid.Row="2" Grid.ColumnSpan="2" Foreground="{StaticResource PulseFontColor}" HorizontalAlignment="Left" >
-					<ContentControl cal:View.Model="{Binding SettingsVM}"  />
-				</Expander>
-		
-		
-		</Grid>
+                <!--Ship Speed-->
+                <Border Grid.Column="1" Margin="10" Background="{StaticResource PulseBackBorder2Color}" ToolTip="Ship speed and direction based off GPS or Bottom Track data.">
+                <Grid Grid.Column="1" Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Ship Speed" Foreground="{StaticResource PulseFontColor}" Margin="5,1" HorizontalAlignment="Center" FontSize="16" />
+
+                    <!--Avg Vel-->
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Avg Vel" Foreground="{StaticResource PulseFontColor}" Margin="5,1" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
+                    <Border Grid.Row="2" Grid.Column="0" Background="{StaticResource PulseBackBorder3Color}" Margin="5" >
+                        <TextBlock x:Name="ShipVel" Foreground="{StaticResource PulseFontBrightColor}" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="29.333" />
+                    </Border>
+
+                    <!--Avg Dir-->
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Avg Dir" Foreground="{StaticResource PulseFontColor}" Margin="5,1" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
+                    <Border Grid.Row="2" Grid.Column="1" Background="{StaticResource PulseBackBorder3Color}" Margin="5" >
+                        <TextBlock x:Name="ShipDir" Foreground="{StaticResource PulseFontBrightColor}" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="29.333" />
+                    </Border>
+
+                    <!--Max Vel-->
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Max Vel" Foreground="{StaticResource PulseFontColor}" Margin="5,1" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
+                    <Border Grid.Row="2" Grid.Column="2" Background="{StaticResource PulseBackBorder3Color}" Margin="5" >
+                        <TextBlock x:Name="ShipMaxVel" Foreground="{StaticResource PulseFontBrightColor}" Margin="5" HorizontalAlignment="Center" FontSize="29.333" />
+                    </Border>
+
+                </Grid>
+                </Border>
+            </Grid>
+
+        </Border>
+
+        <TabControl Grid.Row="1" Background="Black" Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="600">
+
+                <!--Data-->
+                <TabItem Header="Data">
+                <ScrollViewer MaxHeight="620" Margin="10">
+                        <!--Data-->
+                        <DataGrid Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" ItemsSource="{Binding WaterDataList}" AutoGenerateColumns="False" Margin="5" VerticalAlignment="Top" Background="Transparent" BorderBrush="Transparent">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Bin" Binding="{Binding Bin}" />
+                                <DataGridTextColumn Header="Magnitude" Binding="{Binding Mag}" />
+                                <DataGridTextColumn Header="Direction" Binding="{Binding Dir}" />
+                            </DataGrid.Columns>
+                            <DataGrid.RowStyle>
+                                <Style TargetType="{x:Type DataGridRow}">
+                                    <Setter Property="FontSize" Value="14"/>
+                                    <Setter Property="FontFamily" Value="Arial"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="Background" Value="Black"/>
+                                </Style>
+                            </DataGrid.RowStyle>
+                        </DataGrid>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!--3D Plot-->
+                <TabItem Header="3D Plot">
+                    <!--Profile-->
+                    <Grid Grid.Row="2" Grid.Column="1" Background="Black">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <!--ContentControl cal:View.Model="{Binding VelPlot}" /-->
+                        <Viewbox Grid.Row="0" Grid.Column="0" Stretch="Fill" MaxHeight="{Binding PlotSize}" ToolTip="Click the HOME key on your keyboard to zoom to max.  Then click on the U on the view cube to reorientate the plot.">
+                            <helix:HelixViewport3D x:Name="viewportSelectedEnsemble" ZoomExtentsWhenLoaded="True" ShowCoordinateSystem="True" ShowCameraInfo="False" ShowCameraTarget="False" ShowViewCube="True" CameraMode="Inspect" Orthographic="True" Width="400" Height="400" >
+                                <helix:HelixViewport3D.Camera>
+                                    <PerspectiveCamera UpDirection="0, 1, 0" Position="-0.381, -10.889, 29.000" LookDirection="0,0,-19.000"  />
+                                </helix:HelixViewport3D.Camera>
+                                <helix:DefaultLights />
+                                <rti:BinPlot3D Content="{Binding VelPlot.Content}">
+                                    <rti:BinPlot3D.Transform>
+                                        <Transform3DGroup>
+                                            <RotateTransform3D>
+                                                <RotateTransform3D.Rotation>
+                                                    <AxisAngleRotation3D Axis="0,1,0" Angle="90"/>
+                                                </RotateTransform3D.Rotation>
+                                            </RotateTransform3D>
+                                        </Transform3DGroup>
+                                    </rti:BinPlot3D.Transform>
+                                </rti:BinPlot3D>
+                            </helix:HelixViewport3D>
+                        </Viewbox>
+
+                        <!--Plot Legend-->
+                        <Viewbox Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" Margin="5" >
+                            <StackPanel>
+                                <!--Contour Legend Image-->
+                                <Image Grid.Column="1" Source="{Binding Legend.LegendImage}" HorizontalAlignment="Right" />
+
+                                <!--Contour Plot Legend Label-->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!--Min value pushed to the left with lines on the scale image-->
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Legend.MinVelocityScale}" HorizontalAlignment="Left" Foreground="{StaticResource PulseFontColor}" VerticalAlignment="Center"/>
+
+                                    <!--Max value pushed to the right with lines on the scale image-->
+                                    <TextBlock Grid.Row="0" Grid.Column="7" Text="{Binding Legend.MaxVelocityScale}" HorizontalAlignment="Right" Foreground="{StaticResource PulseFontColor}" VerticalAlignment="Center"/>
+
+                                    <!--3 Middle values seperated evenly-->
+                                    <Grid Grid.Column="1" Grid.ColumnSpan="6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <!--Left Middle Value with the lines on the scale image-->
+                                        <TextBlock Grid.Column="0" Text="{Binding Legend.HalfMinVelocityScale}" HorizontalAlignment="Center" Foreground="{StaticResource PulseFontColor}" VerticalAlignment="Center"/>
+
+                                        <!--Middle Middle Value with the lines on the scale image-->
+                                        <TextBlock Grid.Column="1" Text="{Binding Legend.HalfVelocityScale}" HorizontalAlignment="Center" Foreground="{StaticResource PulseFontColor}" VerticalAlignment="Center"/>
+
+                                        <!--Right Middle Value with the lines on the scale image-->
+                                        <TextBlock Grid.Column="2" Text="{Binding Legend.HalfMaxVelocityScale}" HorizontalAlignment="Center" Foreground="{StaticResource PulseFontColor}" VerticalAlignment="Center"/>
+
+                                    </Grid>
+                                </Grid>
+                            </StackPanel>
+                        </Viewbox>
+                    </Grid>
+                </TabItem>
+
+                <!--Serial Ports-->
+                <TabItem Header="Serial Ports">
+                    <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                        
+                        <!--Start/Stop Pinging-->
+                        <Border Grid.Row="0">
+                            <StackPanel Orientation="Horizontal">
+                                <Button  x:Name="StartPingingCmd" Style="{StaticResource ButtonStyle}"  Width="100" Height="100" Margin="20,5" Foreground="#FFC5CFC0" BorderBrush="#FFD9D3CE" ToolTip="Send the command to start pinging the ADCP.  This will also use the additional commands in the settings.">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <Image Grid.Row="0" Source="../Images/start.png" />
+                                        <Viewbox Grid.Row="1">
+                                            <StackPanel>
+                                                <TextBlock Text="Start" HorizontalAlignment="Center" />
+                                                <TextBlock Text="Pinging" HorizontalAlignment="Center" />
+                                            </StackPanel>
+                                        </Viewbox>
+                                    </Grid>
+                                </Button>
+
+                                <Button x:Name="StopPingingCmd" Style="{StaticResource ButtonStyle}"  Width="100" Height="100" Margin="5" Foreground="#FFC5CFC0" BorderBrush="#FFD9D3CE" ToolTip="Stop pinging the ADCP.  This is need to send new commands.">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <Image Grid.Row="0" Source="../Images/stop.png" />
+                                        <Viewbox Grid.Row="1">
+                                            <StackPanel>
+                                                <TextBlock Text="Stop" HorizontalAlignment="Center" />
+                                                <TextBlock Text="Pinging" HorizontalAlignment="Center" />
+                                            </StackPanel>
+                                        </Viewbox>
+                                    </Grid>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+
+                        <!--Serial Input-->
+                        <Border Grid.Row="1" Background="{StaticResource PulseBackBorder2Color}" Margin="5" ToolTip="Settings for the ADCP serial port.">
+                            <Grid>
+                                <StackPanel>
+                                    <TextBlock Text="ADCP Input" Foreground="{StaticResource PulseFontColor}" FontSize="26.667" Margin="5,0" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <ComboBox ItemsSource="{Binding CommPortList}" Width="115" SelectedItem="{Binding SelectedAdcpCommPort}" Margin="5" />
+                                        <Button Content="Scan" x:Name="ScanAdcpSerialPortsCmd" Margin="5"/>
+                                    </StackPanel>
+                                    <ComboBox ItemsSource="{Binding BaudRateList}" SelectedItem="{Binding SelectedAdcpBaudRate}" Margin="5" Width="160" HorizontalAlignment="Left" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!--GPS Input-->
+                        <Border Grid.Row="2" Background="{StaticResource PulseBackBorder2Color}" Margin="5" ToolTip="Settings for the GPS serial port.  Enable to the GPS serial port to input GPS data to be used as a backup heading device or to get the speed of the ship.">
+                            <Grid>
+                                <StackPanel>
+                                    <TextBlock Text="GPS Input" Foreground="{StaticResource PulseFontColor}" FontSize="26.667" Margin="5,0" />
+                                <CheckBox Content="Enable" IsChecked="{Binding Path=IsGpsEnabled}" Foreground="{StaticResource PulseFontColor}" Margin="5" />
+                                <StackPanel Orientation="Horizontal">
+                                        <ComboBox ItemsSource="{Binding CommPortList}" Width="115" SelectedItem="{Binding SelectedGpsCommPort}" Margin="5" />
+                                        <Button Content="Scan" x:Name="ScanGpsSerialPortsCmd" Margin="5"/>
+                                    </StackPanel>
+                                    <ComboBox ItemsSource="{Binding BaudRateList}" SelectedItem="{Binding SelectedGpsBaudRate}" Margin="5" Width="160" HorizontalAlignment="Left" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                    <!--Serial Output-->
+                        <Border Grid.Row="3" Grid.Column="0" Background="{StaticResource PulseBackBorder2Color}" Margin="5" ToolTip="Serial port to output the results of the averaged data.">
+                            <Grid Grid.Row="1" Grid.Column="0">
+                                <StackPanel>
+                                    <TextBlock Text="Serial Output" Foreground="{StaticResource PulseFontColor}" FontSize="26.667" Margin="5,0" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <ComboBox ItemsSource="{Binding CommPortList}" Width="115" SelectedItem="{Binding SelectedOutputCommPort}" Margin="5" />
+                                        <Button Content="Scan" x:Name="ScanOutputSerialPortsCmd" Margin="5"/>
+                                    </StackPanel>
+                                    <ComboBox ItemsSource="{Binding BaudRateList}" SelectedItem="{Binding SelectedOutputBaudRate}" Margin="5" Width="160" HorizontalAlignment="Left" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </TabItem>
+
+                <!--Settings-->
+                <TabItem Header="Settings">
+                <ScrollViewer MaxHeight="620" Margin="10">
+                    <ContentControl cal:View.Model="{Binding SettingsVM}"  />
+                </ScrollViewer>
+                </TabItem>
+
+            <TabItem Header="About">
+                <StackPanel>
+                    <TextBlock Text="Average Water Column" Foreground="{StaticResource PulseFontColor}" FontWeight="Bold" FontSize="18" Margin="5" HorizontalAlignment="Center" />
+                    <TextBlock Text="Rowe Technologies Inc. © 2016" Foreground="{StaticResource PulseFontColor}" Margin="5,0,5,10" HorizontalAlignment="Center" />
+                    <TextBlock Text="Display the water column.  Display the average velocity and direction of the selected water column." Foreground="{StaticResource PulseFontColor}" Margin="5,20,5,20" />
+
+                    <TextBlock Text="{Binding AvgWaterColumnUpdateToDate}" Foreground="{StaticResource PulseFontHighlightColor}" Margin="5,0" />
+                    <TextBlock Text="{Binding AvgWaterColumnUpdateUrl}" Foreground="{StaticResource PulseFontHighlightColor}" Margin="5,0" />
+                </StackPanel>
+            </TabItem>
+
+            </TabControl>
+
+
+
+    </Grid>
 </UserControl>

@@ -6,7 +6,7 @@
         mc:Ignorable="d" 
         x:Class="RTI.ShellView"
         xmlns:cal="http://www.caliburnproject.org"	
-        Title="RTI - Average Water Column" Background="{StaticResource PulseBackgroundColor}" Width="1000" Height="950" >
+        Title="RTI - Average Water Column" Background="{StaticResource PulseBackgroundColor}" Width="800" Height="1000" >
     <ScrollViewer>
 	<Grid>
         <Grid.RowDefinitions>
@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
 		
         <!--ContentControl Grid.Row="0" cal:View.Model="{Binding MenuVM}" HorizontalAlignment="Left" VerticalAlignment="Top"  /-->
-        <ContentControl Grid.Row="1" x:Name="ActiveItem" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <ContentControl Grid.Row="1" x:Name="ActiveItem" HorizontalAlignment="Center" VerticalAlignment="Top" />
     </Grid>
 	</ScrollViewer>
 </Window>

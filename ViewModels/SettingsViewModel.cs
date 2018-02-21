@@ -209,11 +209,11 @@ namespace RTI
         /// <summary>
         /// Selection of what coordinate transform to display.
         /// </summary>
-        private Core.Commons.Transforms _SelectedTransform;
+        private string _SelectedTransform;
         /// <summary>
         /// Selection of what coordinate transform to display.
         /// </summary>
-        public Core.Commons.Transforms SelectedTransform
+        public string SelectedTransform
         {
             get { return _SelectedTransform; }
             set
@@ -230,11 +230,11 @@ namespace RTI
         /// <summary>
         /// List of coordinate transforms.
         /// </summary>
-        private BindingList<Core.Commons.Transforms> _transformList;
+        private BindingList<string> _transformList;
         /// <summary>
         /// List of coordinate transforms.
         /// </summary>
-        public BindingList<Core.Commons.Transforms> TransformList
+        public BindingList<string> TransformList
         {
             get { return _transformList; }
             set
@@ -321,6 +321,37 @@ namespace RTI
         }
 
 
+        #region Screening
+
+        /// <summary>
+        /// List of available heading sources.
+        /// </summary>
+        public BindingList<string> HeadingSourceList { get; set; }
+
+        /// <summary>
+        /// Heading Source.
+        /// </summary>
+        private string _SelectedHeadingSource;
+        /// <summary>
+        /// Heading Source.
+        /// </summary>
+        public string SelectedHeadingSource
+        {
+            get
+            {
+                return _SelectedHeadingSource;
+            }
+            set
+            {
+                _SelectedHeadingSource = value;
+                Settings.Default.SelectedHeadingSource = value;
+                Settings.Default.Save();
+                RaisePropertyChangedEventImmediately("SelectedHeadingSource");
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #endregion
@@ -332,9 +363,13 @@ namespace RTI
         {
             _homeVM = homeVM;
 
-            TransformList = new BindingList<Core.Commons.Transforms>();
-            TransformList.Add(Core.Commons.Transforms.EARTH);
-            TransformList.Add(Core.Commons.Transforms.INSTRUMENT);
+            TransformList = new BindingList<string>();
+            TransformList.Add("EARTH");
+            TransformList.Add("INSTRUMENT");
+
+            HeadingSourceList = new BindingList<string>();
+            HeadingSourceList.Add("GPS");
+            HeadingSourceList.Add("ADCP");
 
             _MinBin = Settings.Default.MinBin;
             _MaxBin = Settings.Default.MaxBin;
@@ -346,6 +381,7 @@ namespace RTI
             _PlotSize = Settings.Default.PlotSize;
             _minVelocity = Settings.Default.MinVelocity;
             _maxVelocity = Settings.Default.MaxVelocity;
+            _SelectedHeadingSource = Settings.Default.SelectedHeadingSource;
 
             RaisePropertyChangedEventImmediately(null);
         }

@@ -36,7 +36,25 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="PlotSize" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">300</Value>
+      <Value Profile="(Default)">500</Value>
+    </Setting>
+    <Setting Name="GpsCommPort" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="GpsBaud" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">19200</Value>
+    </Setting>
+    <Setting Name="MinVelocity" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="MaxVelocity" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">5</Value>
+    </Setting>
+    <Setting Name="IsGpsEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="SelectedHeadingSource" Type="System.String" Scope="User">
+      <Value Profile="(Default)">GPS</Value>
     </Setting>
   </Settings>
 </SettingsFile>

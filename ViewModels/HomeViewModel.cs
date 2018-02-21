@@ -52,6 +52,9 @@ namespace RTI
     using System.Threading;
     using System.Diagnostics;
     using AverageWaterColumn.Properties;
+    using System.Net;
+    using AutoUpdaterDotNET;
+    using System.Windows;
 
     /// <summary>
     /// Display the options and output for the application.
@@ -94,6 +97,24 @@ namespace RTI
             public int MaxBin;
         }
 
+        private struct ShipData
+        {
+            /// <summary>
+            /// Ship velocity.
+            /// </summary>
+            public double ShipVel;
+
+            /// <summary>
+            /// Ship direction.
+            /// </summary>
+            public double ShipDir;
+
+            /// <summary>
+            /// Ship Maximum velocity.
+            /// </summary>
+            public double ShipMaxVel;
+        }
+
         /// <summary>
         /// Buffer to hold the average data.
         /// </summary>
@@ -103,6 +124,11 @@ namespace RTI
             /// Averaged data.
             /// </summary>
             public AvgData Data;
+
+            /// <summary>
+            /// Ship Data.
+            /// </summary>
+            public ShipData ShipData;
 
             /// <summary>
             /// String of the latest data.
@@ -136,6 +162,11 @@ namespace RTI
         #region Variables
 
         /// <summary>
+        ///  Setup logger
+        /// </summary>
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        /// <summary>
         /// ADCP Serial Port options.
         /// </summary>
         private SerialOptions _adcpSerialOptions;
@@ -148,10 +179,10 @@ namespace RTI
         /// <summary>
         /// Binary ADCP codec to decode the data.
         /// </summary>
-        private AdcpBinaryCodec _binaryCodec;
+        private AdcpBinaryCodecNew _binaryCodec;
 
         /// <summary>
-        /// ADCP Serial Port options.
+        /// Output Serial Port options.
         /// </summary>
         private SerialOptions _outputSerialOptions;
 
@@ -159,6 +190,16 @@ namespace RTI
         /// Serial port to output the data.
         /// </summary>
         private AdcpSerialPort _outputSerialPort;
+
+        /// <summary>
+        /// GPS Serial Port options.
+        /// </summary>
+        private SerialOptions _gpsSerialOptions;
+
+        /// <summary>
+        /// Serial port to take in the GPS data.
+        /// </summary>
+        private GpsSerialPort _gpsSerialPort;
 
         /// <summary>
         /// Timer to have a fixed output.
@@ -177,10 +218,34 @@ namespace RTI
         private List<AvgData> _runningAvgBuffer;
 
         /// <summary>
-        /// The maximum number of ensembles to
-        /// accumulate for the average.
+        /// Vessel Mount Options.
         /// </summary>
-        //private int _maxRunningAvgCount;
+        private VesselMountOptions _vmOptions;
+
+        /// <summary>
+        /// Previous Good Bottom Track value.
+        /// </summary>
+        private float _prevBtEast;
+
+        /// <summary>
+        /// Previous Good Bottom Track North value.
+        /// </summary>
+        private float _prevBtNorth;
+
+        /// <summary>
+        /// Previous Good Bottom Track Vertical value.
+        /// </summary>
+        private float _prevBtVert;
+
+        /// <summary>
+        /// Heading source.
+        /// </summary>
+        private Transform.HeadingSource _headingSource;
+
+        /// <summary>
+        /// Keep track of the maximum ship velocity.
+        /// </summary>
+        private double _maxShipVelocity;
 
         #endregion
 
@@ -257,6 +322,68 @@ namespace RTI
             }
         }
 
+        /// <summary>
+        /// Set a flag to enable to disable the GPS serial port.
+        /// </summary>
+        private bool _IsGpsEnabled;
+        /// <summary>
+        /// Set a flag to enable to disable the GPS serial port.
+        /// </summary>
+        public bool IsGpsEnabled
+        {
+            get { return _IsGpsEnabled; }
+            set
+            {
+                _IsGpsEnabled = value;
+
+                // Set the options
+                if (value)
+                {
+                    ReconnectGpsSerialPort();
+                }
+                else
+                {
+                    DisconnectGpsSerialPort();
+                }
+
+                // Save the option
+                Settings.Default.IsGpsEnabled = value;
+                Settings.Default.Save();
+
+                RaisePropertyChangedEventImmediately("IsGpsEnabled");
+            }
+        }
+
+        
+        /// <summary>
+        /// Selected GPS Comm Port.
+        /// </summary>
+        private string _SelectedGpsCommPort;
+        /// <summary>
+        /// Selected GPS Comm Port.
+        /// </summary>
+        public string SelectedGpsCommPort
+        {
+            get { return _SelectedGpsCommPort; }
+            set
+            {
+                _SelectedGpsCommPort = value;
+
+                // Set the options
+                _gpsSerialOptions.Port = value;
+                if (_IsGpsEnabled)
+                {
+                    ReconnectGpsSerialPort();
+                }
+
+                // Save the option
+                Settings.Default.GpsCommPort = value;
+                Settings.Default.Save();
+
+                RaisePropertyChangedEventImmediately("SelectedGpsCommPort");
+            }
+        }
+
         #endregion
 
         #region Baud Rate
@@ -318,9 +445,38 @@ namespace RTI
             }
         }
 
+        /// <summary>
+        /// Selected GPS baud rate.
+        /// </summary>
+        private int _SelectedGpsBaudRate;
+        /// <summary>
+        /// Selected GPS baud rate.
+        /// </summary>
+        public int SelectedGpsBaudRate
+        {
+            get { return _SelectedGpsBaudRate; }
+            set
+            {
+                _SelectedGpsBaudRate = value;
+
+                // Set the options
+                _gpsSerialOptions.BaudRate = value;
+                if (_IsGpsEnabled)
+                {
+                    ReconnectGpsSerialPort();
+                }
+
+                // Save the option
+                Settings.Default.GpsBaud = value;
+                Settings.Default.Save();
+
+                RaisePropertyChangedEventImmediately("SelectedGpsBaudRate");
+            }
+        }
+
         #endregion
 
-        #region Average Display
+        #region Average Water Display
 
         /// <summary>
         /// Average Velocity.
@@ -360,12 +516,89 @@ namespace RTI
 
         #endregion
 
+        #region Ship Speed Display
+
+        /// <summary>
+        /// Ship Velocity.
+        /// </summary>
+        private double _ShipVel;
+        /// <summary>
+        /// Ship Velocity.
+        /// </summary>
+        public string ShipVel
+        {
+            get { return _ShipVel.ToString("0.000"); }
+        }
+
+        /// <summary>
+        /// Ship  Direction.
+        /// </summary>
+        private double _ShipDir;
+        /// <summary>
+        /// Ship  Direction.
+        /// </summary>
+        public string ShipDir
+        {
+            get { return _ShipDir.ToString("0.000"); }
+        }
+
+        /// <summary>
+        /// Ship Maximum Velocity.
+        /// </summary>
+        private double _ShipMaxVel;
+        /// <summary>
+        /// Ship Maximum Velocity.
+        /// </summary>
+        public string ShipMaxVel
+        {
+            get { return _ShipMaxVel.ToString("0.000"); }
+        }
+
+        #endregion
+
         #region Settings Display
 
         /// <summary>
         /// Settings ViewModel.
         /// </summary>
         public SettingsViewModel SettingsVM { get; set; }
+
+        #endregion
+
+        #region Screening
+
+        /// <summary>
+        /// List of available heading sources.
+        /// </summary>
+        public List<string> HeadingSourceList {get; set;}
+
+        /// <summary>
+        /// Maximum Velocity.
+        /// </summary>
+        public string SelectedHeadingSource
+        {
+            get
+            {
+                if (_headingSource == Transform.HeadingSource.ADCP)
+                {
+                    return "ADCP";
+                }
+
+                return "GPS";
+            }
+            set
+            {
+                if (value == "ADCP")
+                {
+                    _headingSource = Transform.HeadingSource.ADCP;
+                }
+                else
+                {
+                    _headingSource = Transform.HeadingSource.GPS1;
+                }
+                RaisePropertyChangedEventImmediately("SelectedHeadingSource");
+            }
+        }
 
         #endregion
 
@@ -483,6 +716,78 @@ namespace RTI
 
         #endregion
 
+        #region Version and Updates
+
+        /// <summary>
+        /// RTI Average Water Column version number.
+        /// </summary>
+        private string _AvgWaterColumnVersionVersion;
+        /// <summary>
+        /// RTI Average Water Column version number.
+        /// </summary>
+        public string AvgWaterColumnVersion
+        {
+            get { return _AvgWaterColumnVersionVersion; }
+            set
+            {
+                _AvgWaterColumnVersionVersion = value;
+                this.NotifyOfPropertyChange(() => this.AvgWaterColumnVersion);
+            }
+        }
+
+        /// <summary>
+        /// Flag to determine if we are looking for the update.
+        /// </summary>
+        private bool _IsCheckingForUpdates;
+        /// <summary>
+        /// Flag to determine if we are looking for the update.
+        /// </summary>
+        public bool IsCheckingForUpdates
+        {
+            get { return _IsCheckingForUpdates; }
+            set
+            {
+                _IsCheckingForUpdates = value;
+                this.NotifyOfPropertyChange(() => this.IsCheckingForUpdates);
+            }
+        }
+
+        /// <summary>
+        /// RTI Average Water Column Update URL.
+        /// </summary>
+        private string _AvgWaterColumnUpdateUrl;
+        /// <summary>
+        /// RTI  Average Water Column Update URL.
+        /// </summary>
+        public string AvgWaterColumnUpdateUrl
+        {
+            get { return _AvgWaterColumnUpdateUrl; }
+            set
+            {
+                _AvgWaterColumnUpdateUrl = value;
+                this.NotifyOfPropertyChange(() => this.AvgWaterColumnUpdateUrl);
+            }
+        }
+
+        /// <summary>
+        /// A string to nofity the user if the version is not update to date.
+        /// </summary>
+        private string _AvgWaterColumnUpdateToDate;
+        /// <summary>
+        /// A string to nofity the user if the version is not update to date.
+        /// </summary>
+        public string AvgWaterColumnUpdateToDate
+        {
+            get { return _AvgWaterColumnUpdateToDate; }
+            set
+            {
+                _AvgWaterColumnUpdateToDate = value;
+                this.NotifyOfPropertyChange(() => this.AvgWaterColumnUpdateToDate);
+            }
+        }
+
+        #endregion
+
         #endregion
 
         /// <summary>
@@ -490,6 +795,12 @@ namespace RTI
         /// </summary>
         public HomeViewModel()
         {
+            // Auto Update
+            IsCheckingForUpdates = false;
+            AvgWaterColumnUpdateToDate = "Checking for an update...";
+            AvgWaterColumnUpdateUrl = "";
+            AvgWaterColumnVersion = System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
+
             // Set the list
             CommPortList = SerialOptions.PortOptions;
             BaudRateList = SerialOptions.BaudRateOptions;
@@ -504,6 +815,15 @@ namespace RTI
             Legend = new ContourPlotLegendViewModel(VelPlot.ColormapBrushSelection, VelPlot.MinVelocity, VelPlot.MaxVelocity);
 
             PlotSize = Settings.Default.PlotSize;
+
+            _maxShipVelocity = 0.0;
+
+            // Vessel Mount Options
+            _prevBtEast = DataSet.Ensemble.BAD_VELOCITY;
+            _prevBtNorth = DataSet.Ensemble.BAD_VELOCITY;
+            _prevBtVert = DataSet.Ensemble.BAD_VELOCITY;
+            _vmOptions = new VesselMountOptions();
+
 
             // Try to select any available comm ports
             if (!string.IsNullOrEmpty(Settings.Default.AdcpCommPort))
@@ -529,20 +849,38 @@ namespace RTI
                 RaisePropertyChangedEventImmediately("SelectedOutputCommPort");
             }
 
+            // GPS Serial Port
+            if (!string.IsNullOrEmpty(Settings.Default.GpsCommPort))
+            {
+                _SelectedGpsCommPort = Settings.Default.GpsCommPort;
+                RaisePropertyChangedEventImmediately("SelectedGpsCommPort");
+            }
+            else if (CommPortList.Count > 1)
+            {
+                _SelectedGpsCommPort = CommPortList[1];
+                RaisePropertyChangedEventImmediately("SelectedGpsCommPort");
+            }
+
             // Get the latest baud rates
+            _IsGpsEnabled = false;
             _SelectedAdcpBaudRate = Settings.Default.AdcpBaud;
             _SelectedOutputBaudRate = Settings.Default.OutputBaud;
+            _SelectedGpsBaudRate = Settings.Default.GpsBaud;
+            _IsGpsEnabled = Settings.Default.IsGpsEnabled;
             RaisePropertyChangedEventImmediately("SelectedAdcpBaudRate");
             RaisePropertyChangedEventImmediately("SelectedOutputBaudRate");
+            RaisePropertyChangedEventImmediately("SelectedGpsBaudRate");
+            RaisePropertyChangedEventImmediately("IsGpsEnabled");
 
             // Create the Serial options
             _adcpSerialOptions = new SerialOptions() { Port = SelectedAdcpCommPort, BaudRate = SelectedAdcpBaudRate };
             _outputSerialOptions = new SerialOptions() { Port = _SelectedOutputCommPort, BaudRate = SelectedOutputBaudRate };
+            _gpsSerialOptions = new SerialOptions() { Port = _SelectedGpsCommPort, BaudRate = SelectedGpsBaudRate };
 
             // Create codec to decode the data
             // Subscribe to process event
-            _binaryCodec = new AdcpBinaryCodec();
-            _binaryCodec.ProcessDataEvent += new AdcpBinaryCodec.ProcessDataEventHandler(_binaryCodec_ProcessDataEvent);
+            _binaryCodec = new AdcpBinaryCodecNew();
+            _binaryCodec.ProcessDataEvent += new AdcpBinaryCodecNew.ProcessDataEventHandler(_binaryCodec_ProcessDataEvent);
 
             // Initialize the list to accumulate a running average
             _runningAvgBuffer = new List<AvgData>();
@@ -556,9 +894,15 @@ namespace RTI
             // Try to connect the serial ports
             ConnectAdcp();
             ConnectOutputSerialPort();
+            if (_IsGpsEnabled)
+            {
+                ConnectGpsSerialPort();
+            }
 
             // Settings ViewModel
             SettingsVM = new SettingsViewModel(this);
+
+            CheckForUpdates();
         }
 
 
@@ -584,6 +928,14 @@ namespace RTI
         /// Update the Output serial port list.
         /// </summary>
         public void ScanOutputSerialPortsCmd()
+        {
+            ScanSerialPorts();
+        }
+
+        /// <summary>
+        /// Update the GPS serial port list.
+        /// </summary>
+        public void ScanGpsSerialPortsCmd()
         {
             ScanSerialPorts();
         }
@@ -715,6 +1067,67 @@ namespace RTI
 
         #endregion
 
+        #region GPS Serial Port
+
+        /// <summary>
+        /// Create the GPS serial port.
+        /// </summary>
+        private void ConnectGpsSerialPort()
+        {
+            // Create the connection
+            _gpsSerialPort = new GpsSerialPort(_gpsSerialOptions);
+            _gpsSerialPort.Connect();
+
+            // Subscribe to receive data
+            _gpsSerialPort.ReceiveGpsSerialDataEvent += _gpsSerialPort_ReceiveGpsSerialDataEvent;
+
+            Debug.WriteLine(string.Format("GPS Connect: {0}", _gpsSerialPort.ToString()));
+        }
+
+        /// <summary>
+        /// Receive the GPS data and pass it to the Binary codec.
+        /// </summary>
+        /// <param name="data"></param>
+        private void _gpsSerialPort_ReceiveGpsSerialDataEvent(string data)
+        {
+            _binaryCodec.AddNmeaData(data);
+        }
+
+        /// <summary>
+        /// Disconnect the GPS serial port.
+        /// </summary>
+        private void DisconnectGpsSerialPort()
+        {
+            // Shutdown the connection if it exist
+            if (_gpsSerialPort != null)
+            {
+                Debug.WriteLine(string.Format("GPS SerialPort Disconnect: {0}", _gpsSerialPort.ToString()));
+
+                _gpsSerialPort.ReceiveGpsSerialDataEvent -= _gpsSerialPort_ReceiveGpsSerialDataEvent;
+
+                // Shutdown the serial port
+                _gpsSerialPort.Dispose();
+
+                // Set to null
+                _gpsSerialPort = null;
+            }
+        }
+
+        /// <summary>
+        /// Reconnect the GPS serial port.
+        /// </summary>
+        private void ReconnectGpsSerialPort()
+        {
+            DisconnectGpsSerialPort();
+
+            // Wait for Disconnect to finish
+            Thread.Sleep(RTI.AdcpSerialPort.WAIT_STATE);
+
+            ConnectGpsSerialPort();
+        }
+
+        #endregion
+
         #region ADCP Commands
 
         /// <summary>
@@ -746,6 +1159,126 @@ namespace RTI
 
         #endregion
 
+        #region Auto Update
+
+        /// <summary>
+        /// Check for updates to the application.  This will download the version of the application from 
+        /// website/pulse/Pulse_AppCast.xml.  It will then check the version against the verison of this application
+        /// set in Properties->AssemblyInfo.cs.  If the one on the website is greater, it will display a message 
+        /// to update the application.
+        /// 
+        /// Also subscribe to the event to determine if an update is necssary.
+        /// </summary>
+        private void CheckForUpdates()
+        {
+            string url = @"http://www.rowetechinc.co/pulse/AverageWaterColumn_AppCast.xml";
+
+            try
+            {
+                WebRequest request = WebRequest.Create(url);
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                if (response != null && response.StatusCode == HttpStatusCode.OK && response.ResponseUri == new System.Uri(url))
+                {
+                    AutoUpdater.Start(url);
+                    AutoUpdater.CheckForUpdateEvent += AutoUpdaterOnCheckForUpdateEvent;
+                }
+                response.Close();
+            }
+            catch (System.Net.WebException e)
+            {
+                // No Internet connection, so do nothing
+                log.Error("No Internet connection to check for updates.", e);
+            }
+            catch (Exception e)
+            {
+                log.Error("Error checking for an update on the web.", e);
+            }
+        }
+
+        /// <summary>
+        /// Event handler for the AutoUpdater.   This will get if an update is available
+        /// and if so, which version is available.
+        /// </summary>
+        /// <param name="args">Results for checking if an update exist.</param>
+        private void AutoUpdaterOnCheckForUpdateEvent(UpdateInfoEventArgs args)
+        {
+            if (args != null)
+            {
+                if (!args.IsUpdateAvailable)
+                {
+                    AvgWaterColumnUpdateToDate = string.Format("Rowe Technologies Inc. - Average Water Column  is up to date");
+                    AvgWaterColumnUpdateUrl = "";
+                }
+                else
+                {
+                    AvgWaterColumnUpdateToDate = string.Format("Rowe Technologies Inc. - Average Water Column version {0} is available", args.CurrentVersion);
+                    AvgWaterColumnUpdateUrl = args.DownloadURL;
+                }
+                // Unsubscribe
+                AutoUpdater.CheckForUpdateEvent -= AutoUpdaterOnCheckForUpdateEvent;
+                IsCheckingForUpdates = false;
+
+
+                if (args.IsUpdateAvailable)
+                {
+                    MessageBoxResult dialogResult;
+                    if (args.Mandatory)
+                    {
+                        dialogResult =
+                            MessageBox.Show(@"There is new version " + args.CurrentVersion + "  available. \nYou are using version " + args.InstalledVersion + ". \nThis is required update. \nPress Ok to begin updating the application.",
+                                            @"Update Available",
+                                            MessageBoxButton.OK,
+                                            MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        dialogResult =
+                            MessageBox.Show(
+                                @"There is new version " + args.CurrentVersion + " available. \nYou are using version " + args.InstalledVersion + ".  \nDo you want to update the application now?",
+                                @"Update Available",
+                                MessageBoxButton.YesNo,
+                                MessageBoxImage.Information);
+                    }
+
+                    if (dialogResult.Equals(MessageBoxResult.Yes))
+                    {
+                        try
+                        {
+                            if (AutoUpdater.DownloadUpdate())
+                            {
+                                //Application.Current.Exit();
+                                System.Windows.Application.Current.Shutdown();
+                            }
+                        }
+                        catch (Exception exception)
+                        {
+                            MessageBox.Show(exception.Message,
+                                exception.GetType().ToString(),
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                        }
+                    }
+                }
+                else
+                {
+                    //MessageBox.Show(@"There is no update available please try again later.", 
+                    //                @"No update available",
+                    //                MessageBoxButton.OK,
+                    //                MessageBoxImage.Information);
+                }
+            }
+            else
+            {
+                //MessageBox.Show(
+                //        @"There is a problem reaching update server please check your internet connection and try again later.",
+                //        @"Update check failed", 
+                //        MessageBoxButton.OK,
+                //        MessageBoxImage.Error);
+            }
+        }
+
+        #endregion
+
         #region Process Data
 
         /// <summary>
@@ -754,8 +1287,31 @@ namespace RTI
         /// <param name="ensemble">Ensemble to process.</param>
         private void ProcessIncomingData(DataSet.Ensemble ensemble)
         {
+            // Get the latest ensemble numer
             string ensNum = ensemble.EnsembleData.EnsembleNumber.ToString();
+
+            // Remove the ship speed
+            ScreenData.RemoveShipSpeed.RemoveVelocity(ref ensemble, _prevBtEast, _prevBtNorth, _prevBtVert, true, true);
+
+            // Mark bad below button
+            ScreenData.ScreenMarkBadBelowBottom.Screen(ref ensemble);
+
+            // Check if the data needs to be reprocessed with the GPS heading instead of the ADCP heading
+            if (Settings.Default.SelectedHeadingSource != "ADCP")
+            {
+                // Ensure GPS data exists
+                if (ensemble.IsNmeaAvail && ensemble.NmeaData.IsGphdtAvail())
+                {
+                    Transform.ProfileTransform(ref ensemble, AdcpCodec.CodecEnum.Binary, 0.25f, Transform.HeadingSource.GPS1);
+                    Transform.BottomTrackTransform(ref ensemble, AdcpCodec.CodecEnum.Binary, 0.9f, 10f, Transform.HeadingSource.GPS1);
+                }
+            }
+            
+            // Generate the averaged data
             AvgData avgData = AverageWaterColumn(ensemble);
+
+            // Get the Ship data
+            ShipData shipData = GetShipData(ensemble);
 
             // Set the max velocity for the plot
             VelPlot.MaxVelocity = avgData.MaxVel;
@@ -785,8 +1341,19 @@ namespace RTI
             sb.Append(_runningAvgBuffer.Count);                // Number of running average data accumulated
             sb.Append("\n");
 
+            // Set the data to the output buffer
+            // This data will be displayed when the timer ticks
             _outputBuffer.Data = runningAvg;
             _outputBuffer.DataStr = sb.ToString();
+            _outputBuffer.ShipData = shipData;
+
+            // Keep track of the previous good bttom track data
+            if (ensemble.IsBottomTrackAvail && ensemble.BottomTrackData.IsEarthVelocityGood())
+            {
+                _prevBtEast = ensemble.BottomTrackData.EarthVelocity[DataSet.Ensemble.BEAM_EAST_INDEX];
+                _prevBtNorth = ensemble.BottomTrackData.EarthVelocity[DataSet.Ensemble.BEAM_NORTH_INDEX];
+                _prevBtVert = ensemble.BottomTrackData.EarthVelocity[DataSet.Ensemble.BEAM_VERTICAL_INDEX];
+            }
         }
 
 
@@ -804,7 +1371,7 @@ namespace RTI
             avgData.MinBin = minBin;
             avgData.MaxBin = maxBin;
 
-            if (Settings.Default.SelectedTransform == Core.Commons.Transforms.EARTH)
+            if (Settings.Default.SelectedTransform == "EARTH")
             {
                 // Calculate the average for the water column
                 if (ensemble.IsEarthVelocityAvail && ensemble.EarthVelocityData.IsVelocityVectorAvail)
@@ -850,6 +1417,50 @@ namespace RTI
         }
 
         /// <summary>
+        /// Collect the ship data. This will use the GPS data as a priority.  It will then use the
+        /// Bottom Track as a backup.
+        /// </summary>
+        /// <param name="ensemble">Ensemble data.</param>
+        /// <returns>Ship data.</returns>
+        private ShipData GetShipData(DataSet.Ensemble ensemble)
+        {
+            ShipData shipData = new ShipData();
+
+            if(ensemble.IsNmeaAvail)
+            {
+                // Set the ship speed
+                if(ensemble.NmeaData.IsGpvtgAvail() && ensemble.NmeaData.GPVTG.IsValid)
+                {
+                    shipData.ShipVel = ensemble.NmeaData.GPVTG.Speed.ToMetersPerSecond().Value;
+                }
+                else if(ensemble.IsBottomTrackAvail && ensemble.BottomTrackData.IsEarthVelocityGood())
+                {
+                    shipData.ShipVel = ensemble.BottomTrackData.GetVelocityMagnitude();
+                }
+                // Set the max velocity
+                _maxShipVelocity = Math.Max(_maxShipVelocity, shipData.ShipVel);
+                shipData.ShipMaxVel = _maxShipVelocity;
+
+
+                // Set the ship direction
+                if (ensemble.NmeaData.IsGphdtAvail() && ensemble.NmeaData.GPHDT.IsValid)
+                {
+                    shipData.ShipDir = ensemble.NmeaData.GPHDT.Heading.DecimalDegrees;
+                }
+                else if (ensemble.NmeaData.IsGpvtgAvail() && ensemble.NmeaData.GPVTG.IsValid)
+                {
+                    shipData.ShipDir = ensemble.NmeaData.GPVTG.Bearing.DecimalDegrees;
+                }
+                else if (ensemble.IsBottomTrackAvail && ensemble.BottomTrackData.IsEarthVelocityGood())
+                {
+                    shipData.ShipDir = ensemble.BottomTrackData.GetVelocityDirection(true);
+                }
+            }
+
+            return shipData;
+        }
+
+        /// <summary>
         /// Find the maximum bin.
         /// </summary>
         /// <param name="ensemble">Ensemble to find the maximum bin.</param>
@@ -869,7 +1480,7 @@ namespace RTI
                 // Range = BtDepth * cos(BeamAngle)
                 // Max Bin = (Range / binLength) - 1Bin
                 float binLength = ensemble.AncillaryData.BinSize;
-                int beamAngle = 0;          // Temp until find actual
+                int beamAngle = 20;          // Temp until find actual
                 double range = ensemble.BottomTrackData.GetAverageRange() * Math.Cos(beamAngle);
 
                 // Check for an error
@@ -1134,13 +1745,23 @@ namespace RTI
             WriteOutputData(_outputBuffer.DataStr);
             Debug.WriteLine(_outputBuffer.DataStr);
 
-            // Update the display
+            // Update the Average Water display
             _AvgVel = _outputBuffer.Data.AvgVel;
             _AvgDir = _outputBuffer.Data.AvgDir;
             _MaxVel = _outputBuffer.Data.MaxVel;
             RaisePropertyChangedEventImmediately("AvgVel");
             RaisePropertyChangedEventImmediately("AvgDir");
             RaisePropertyChangedEventImmediately("MaxVel");
+
+            // Update the Ship display
+            _ShipVel = _outputBuffer.ShipData.ShipVel;
+            _ShipDir = _outputBuffer.ShipData.ShipDir;
+            _ShipMaxVel = _outputBuffer.ShipData.ShipMaxVel;
+            RaisePropertyChangedEventImmediately("ShipVel");
+            RaisePropertyChangedEventImmediately("ShpDir");
+            RaisePropertyChangedEventImmediately("ShipMaxVel");
+
+
         }
 
         #endregion

@@ -1,5 +1,15 @@
 ﻿AverageWaterColumn Changelog
 
+AverageWaterColumn-1.0.0
+ - Updated RTI library to 3.4.5.
+ - Added Auto Updater.
+ - Added Ship Velocity.
+ - Added GPS serial input.
+ - Remove the ship speed from the velocities.
+ - Use GPS heading to replace ADCP heading.
+ - Mark bad below bottom.
+ - Added Tooltips.
+
 AverageWaterColumn-0.0.4
  - Fixed setting the Min and Max bin to the output.
  - Added WaterDataList to display the data.
